@@ -31,6 +31,10 @@ export default function RootLayout({
           href="https://unpkg.com/aos@2.3.2/dist/aos.css"
           rel="stylesheet"
         />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0"
+        />
         <script src="https://unpkg.com/aos@2.3.2/dist/aos.js"></script>
       </head>
       <body className={` antialiased`}>
