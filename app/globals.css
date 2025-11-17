@@ -67,6 +67,10 @@ h6 {
   margin-left: 1rem;
 }
 
+.retext {
+  font-family: "Yesteryear", cursive;
+}
+
 /* Navigation */
 .nav-toggle {
   display: flex;
