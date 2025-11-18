@@ -1,14 +1,13 @@
 import React, { PureComponent } from "react";
 
-export class LeaderBoard extends PureComponent {
+export class History extends PureComponent {
   render() {
     return (
       <div className="w-full card card-xs bg-base-200 p-2">
-        <span className="text-xl font-bold p-2">LeaderBoard</span>
+        <span className="text-xl font-bold p-2">History</span>
         {LeaderBoardItem.map((item, index) => (
           <div key={index}>
             <button className="w-full flex flex-row items-center justify-center hover:bg-base-300 transition duration-150 p-2">
-              <div className="text-4xl font-thin opacity-30 tabular-nums mr-4">{index+1}</div>
               <div className="avatar">
                 <div className="w-14 rounded-full">
                   <img src={item.image} />
@@ -60,4 +59,4 @@ const LeaderBoardItem = [
   },
 ];
 
-export default LeaderBoard;
+export default History;

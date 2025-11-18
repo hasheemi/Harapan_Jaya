@@ -51,6 +51,14 @@ export default function Sidebar() {
             <span className="material-symbols-rounded">volunteer_activism</span>
             Kampanye
           </Link>
+          <Link
+            className={isActive("/dashboard/leaderboard")}
+            href="/dashboard/leaderboard"
+            onClick={closeMenu}
+          >
+            <span className="material-symbols-rounded">leaderboard</span>
+            LeaderBoard
+          </Link>
         </li>
       </ul>
     </div>

@@ -21,8 +21,8 @@ export default function Root({ children }: RootProps) {
       />
       <div data-theme="emerald">
         <div className="w-full bg-leaf-300 flex flex-row">
-          <Sidebar/>
-          <div className="w-full p-4 h-screen bg-leaf-50 flex flex-col gap-4">
+          <Sidebar />
+          <div className="w-full p-4 h-screen bg-leaf-50 flex flex-col gap-4 items-center">
             {/* Content */}
             {children}
           </div>
