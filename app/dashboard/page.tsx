@@ -3,8 +3,10 @@
 import LeaderBoard from "@/app/dashboard/components/LeaderBoard";
 import Link from "next/link";
 import React, { Component } from "react";
+const name = "Ridwan"
 
 export default class Dashboard extends Component {
+
   render() {
     return (
       <>
@@ -17,7 +19,7 @@ export default class Dashboard extends Component {
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0"
         />
         <div data-theme="emerald">
-          <div className="w-full bg-leaf-300 flex flex-row">
+          <div className="w-full bg-leaf-300 flex flex-row overflow-x-hidden">
             <div className="flex flex-col">
               <Link
                 href="/"
@@ -41,30 +43,14 @@ export default class Dashboard extends Component {
                 </li>
               </ul>
             </div>
-            <div className="w-full p-4 h-screen bg-leaf-50 flex flex-col gap-4">
-              {/* Content */}
-              <div className="w-full p-2 bg-base-200 rounded-box flex flex-row items-center">
-                <div className="w-16 rounded-full overflow-hidden">
-                  <img src="https://img.daisyui.com/images/profile/demo/yellingcat@192.webp" />
-                </div>
-                <div className="px-4 flex-1">
-                  <p className="text-lg">Welcome Aaron</p>
-                  <div className="badge badge-warning">Warning</div>
-                </div>
-                <button className="btn btn-square btn-ghost">
-                  <span className="material-symbols-rounded">edit</span>
-                </button>
-              </div>
-              <div className="flex flex-row gap-4">
-                {/* Left */}
-                <div className="flex-1">
-                  <LeaderBoard />
-                </div>
-                {/* Right */}
-                <div className="flex-1">
-
-                </div>
-              </div>
+            {/* Upgrade Account */}
+            <div className="w-full p-10 h-screen bg-leaf-50 flex flex-col gap-4">
+              <p className="text-2xl font-bold"> Hello {name}</p>
+                <ul className="steps">
+                  <li className="step step-primary">Biodata</li>
+                  <li className="step">Data Yayasan</li>
+                  <li className="step">File Yayasan</li>
+                </ul>
             </div>
           </div>
         </div>
