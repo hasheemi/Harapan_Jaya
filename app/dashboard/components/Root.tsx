@@ -1,8 +1,10 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import LeaderBoard from "./LeaderBoard";
+import { useAuth } from "../../../hooks/useAuth"; // Import useAuth
+import { useRouter } from "next/navigation"; // Import useRouter
 
 interface RootProps {
   children: React.ReactNode;
@@ -10,6 +12,30 @@ interface RootProps {
 }
 
 export default function Root({ children, show = false }: RootProps) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Redirect jika user belum login
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  // Tampilkan loading saat authentication check
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-leaf-50 flex items-center justify-center">
+        <div className="text-leaf-600 text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Jangan render apapun jika tidak ada user
+  if (!user) {
+    return null;
+  }
+
   return (
     <>
       <link
@@ -22,7 +48,7 @@ export default function Root({ children, show = false }: RootProps) {
       />
       <div data-theme="emerald">
         <div className="w-full bg-leaf-300 flex flex-row">
-          <Sidebar show = {show}/>
+          <Sidebar show={show} />
           <div className="w-full p-4 h-screen bg-leaf-50 flex flex-col gap-4">
             {/* Content */}
             {children}
