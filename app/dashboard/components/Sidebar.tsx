@@ -92,6 +92,14 @@ export default function Sidebar({ show = false }) {
               <span className="material-symbols-rounded">subdirectory_arrow_right</span>
               <span className="">Campaign</span>
             </Link>
+            <Link
+              className={isActive("/dashboard/admin/profile")}
+              href="/dashboard/admin/profile"
+              onClick={closeMenu}
+            >
+              <span className="material-symbols-rounded">subdirectory_arrow_right</span>
+              <span className="">Profile</span>
+            </Link>
           </>}
         </li>
       </ul>

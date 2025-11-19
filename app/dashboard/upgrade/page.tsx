@@ -4,15 +4,6 @@ import { Component, useState } from "react";
 import Root from "../components/Root";
 import LeaderBoard from "../components/LeaderBoard";
 
-let data_user = {
-    nama : "",
-    
-}
-
-function ChangeData(){
-
-}
-
 function Biodata() {
     let [Nama, setNama] = useState("Type here");
     let [NomorTelepon, setNomorTelepon] = useState("Type here");
@@ -41,7 +32,7 @@ function Biodata() {
             <fieldset className="fieldset">
                 <legend className="fieldset-legend">KTP</legend>
                 <input type="file" className="file-input w-full" 
-                onChange={handleFileChange}/>
+                onChange={handleFileChange} />
             </fieldset>
         </>
     )
@@ -58,19 +49,19 @@ function DataYayasan() {
         <>
         <fieldset className="fieldset">
             <legend className="fieldset-legend">Nama Yayasan</legend>
-            <input type="text" className="input w-full" placeholder="Type here" value={NamaYayasan}/>
+            <input onChange={(e) => setNamaYayasan(e.target.value)} type="text" className="input w-full" placeholder="Type here" value={NamaYayasan}/>
         </fieldset>
         <fieldset className="fieldset">
             <legend className="fieldset-legend">Alamat Yayasan</legend>
-            <input type="text" className="input w-full" placeholder="Type here" value={AlamatYayasan}/>
+            <input onChange={(e) => setAlamatYayasan(e.target.value)} type="text" className="input w-full" placeholder="Type here" value={AlamatYayasan}/>
         </fieldset>
         <fieldset className="fieldset">
             <legend className="fieldset-legend">Nomor Telepon</legend>
-            <input type="number" className="input w-full" placeholder="Type here" value={NomorTelepon} />
+            <input onChange={(e) => setNomorTelepon(e.target.value)} type="number" className="input w-full" placeholder="Type here" value={NomorTelepon} />
         </fieldset>
         <fieldset className="fieldset">
             <legend className="fieldset-legend">NPWP Yayasan</legend>
-            <input type="number" className="input w-full" placeholder="Type here" value={NPWP}/>
+            <input onChange={(e) => setNPWP(e.target.value)} type="number" className="input w-full" placeholder="Type here" value={NPWP}/>
         </fieldset>
         <fieldset className="fieldset">
             <legend className="fieldset-legend">Media Sosial</legend>
@@ -84,7 +75,7 @@ function DataYayasan() {
 }
 
 function File() {
-
+    // Buat state
     return(
         <>
             <fieldset className="fieldset">
@@ -111,7 +102,7 @@ function KonfirmasiUlang() {
     return(
         <>
             <p>Konfirmasi data yang telah dimasukkan:</p>
-            {/* Add confirmation logic here */}
+            {/* Add readonly field */}
         </>
     )
 }
@@ -148,8 +139,8 @@ export default function Campaign() {
 
         return (
             <Root>
-                <div className="w-full h-screen bg-leaf-50 flex flex-col gap-4 bg-amber-200">
-                    <p className="text-2xl font-bold"> Hello</p>
+                <div className="w-full h-screen bg-leaf-50 flex flex-col gap-4">
+                    <p className="text-2xl font-bold"> Isi Formulir </p>
                     <ul className="steps">
                         <li onClick={() => handleNextStep(0)} className={getStepClass(0)}>Biodata</li>
                         <li onClick={() => handleNextStep(1)} className={getStepClass(1)}>Data Yayasan</li>
@@ -157,7 +148,7 @@ export default function Campaign() {
                         <li className={getStepClass(3)}>Konfirmasi Ulang</li>
                     </ul>
                     <div className="w-full flex justify-center ">
-                        <div className="w-2xl bg-blue-200 rounded-xl p-4 flex flex-col gap-3">
+                        <div className="w-2xl bg-gray-200 rounded-xl p-4 flex flex-col gap-3">
                             {renderStepContent()}
                             <button className="btn btn-success w-full mt-4" onClick={() => handleNextStep(Step + 1)}>
                                 {Step < 3 ? "Next" : "Submit"}
