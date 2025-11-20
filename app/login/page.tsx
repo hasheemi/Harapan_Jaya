@@ -4,7 +4,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../../lib/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, db, googleProvider } from "../../lib/firebase";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -28,14 +29,35 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Simpan user data ke localStorage atau state management
-      const userData = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-      };
+      // Reference ke document user
+      const userRef = doc(db, "users", user.uid);
 
+      // Cek apakah user sudah ada di Firestore
+      const userDoc = await getDoc(userRef);
+
+      let userData;
+
+      if (!userDoc.exists()) {
+        // Jika user belum ada, buat document baru
+        userData = {
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          phone: null,
+          createdAt: Date.now(),
+          accountType: "donatur", // basic | upgraded
+          verificationStatus: "none", // none | pending | approved | rejected
+        };
+
+        // Simpan ke Firestore
+        await setDoc(userRef, userData);
+      } else {
+        // Jika user sudah ada, ambil data dari Firestore
+        userData = userDoc.data();
+      }
+
+      // Simpan ke localStorage
       localStorage.setItem("user", JSON.stringify(userData));
 
       // Redirect ke dashboard
@@ -47,6 +69,8 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  // JSX code akan mengikuti di sini...
 
   return (
     <div className="bg-leaf-50 w-screen min-h-screen md:min-h-1 md:h-screen relative flex login-page justify-center items-center">
