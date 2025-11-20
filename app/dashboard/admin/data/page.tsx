@@ -47,8 +47,8 @@ export default class Data extends Component {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Ringkasan Keuangan</h2>
                 <div className="flex gap-4">
-                  <button className="btn btn-success"> Create Summarize </button>
-                  <button className="btn btn-success"> Import to CSV </button>
+                  <button className="btn btn-success"> Kirim Bukti </button>
+                  <button className="btn btn-success"> Export ke CSV </button>
                 </div>
               </div>
 
@@ -57,8 +57,8 @@ export default class Data extends Component {
                   className="grow border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 <select
                   className="border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option>Batch Action</option>
-                  <option>Delete</option>
+                  <option>Filter</option>
+                  <option>Max</option>
                   <option>Export</option>
                 </select>
                 <select

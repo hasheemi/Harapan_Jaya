@@ -3,11 +3,50 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../../lib/firebase";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"email" | "provider">("email");
+  const router = useRouter();
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    // Email OTP logic would go here
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Simpan user data ke localStorage atau state management
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Redirect ke dashboard
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      // Handle error (tampilkan notifikasi, dll)
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="bg-leaf-50 w-screen min-h-screen md:min-h-1 md:h-screen relative flex login-page justify-center items-center">
@@ -45,7 +84,7 @@ export default function LoginPage() {
 
             {/* Email OTP Login */}
             {activeTab === "email" && (
-              <form onSubmit={() => {}} className="space-y-4 py-2">
+              <form onSubmit={handleEmailLogin} className="space-y-4 py-2">
                 <div>
                   <label
                     className="block text-sm font-medium mb-2"
@@ -85,7 +124,7 @@ export default function LoginPage() {
               <div className="space-y-4 py-12">
                 <div className="flex flex-col gap-4">
                   <button
-                    onClick={() => {}}
+                    onClick={handleGoogleLogin}
                     disabled={isLoading}
                     className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded flex items-center justify-center gap-2 transition duration-300 w-full text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >

@@ -34,17 +34,17 @@ export default function Campaign() {
 
   return (
     <Root show={true}>
-      <div className="w-full p-4 flex justify-between">
-        <div>
-          <h3 className="text-3xl text-black"> Halo {userName}</h3>
-          <p className="font-bold"> Kelola Campaign Yayasanmu </p>
+      <div className="top-0 w-full space-y-4 fixed bg-leaf-50 z-50 p-4 shadow-sm">
+        <div className="w-full p-4 flex justify-between">
+          <div>
+            <h3 className="text-3xl text-black"> Halo {userName}</h3>
+            <p className="font-bold"> Kelola Campaign Yayasanmu </p>
+          </div>
+          <a href="/dashboard/admin/campaign/create" className="flex justify-center items-center bg-leaf-600 hover:bg-leaf-700 text-white w-32 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0">Buat Campaign</a>
         </div>
-        <a href="/dashboard/admin/campaign/create" className="flex justify-center items-center bg-leaf-600 hover:bg-leaf-700 text-white w-32 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0">Buat Campaign</a>
-      </div>
-      <div className="!overflow-x-hidden bg-leaf-50">
         <div className="w-full space-y-4">
           {/* 🔍 Search + Sort + Filter */}
-          <div className="search flex flex-row justify-between w-full items-center gap-3 px-6 sm:px-12 mx-auto py-3 bg-leaf-50 rounded-xl shadow-sm">
+          <div className="search flex flex-row justify-start w-full items-center gap-3 px-6 sm:px-12 mx-auto py-3 bg-leaf-50 rounded-xl shadow-sm">
             {/* Search Input */}
             <div className="w-[60%] border border-leaf-500 rounded-lg relative">
               <input
@@ -55,7 +55,7 @@ export default function Campaign() {
               <i className="bx bx-search absolute right-3 top-2.5 text-leaf-900 text-xl"></i>
             </div>
             {/* Sort & Filter Buttons */}
-            <div className="flex flex-row gap-4 w-2/5 justify-end">
+            <div className="flex flex-row gap-4 justify-end">
               {/* Urutkan */}
               <div
                 onClick={() =>
@@ -114,14 +114,14 @@ export default function Campaign() {
             </button>
           </div>
         </div>
-        <section className="donation px-6 sm:px-12 mt-4 pb-20">
+      </div>
+        <section className="donation px-6 sm:px-12 mt-60 pb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-12 mt-10 mx-auto justify-between">
             {donationCards.map((card, index) => (
               <DonationCard key={index} {...card} />
             ))}
           </div>
         </section>
-      </div>
     </Root>
   );
 }

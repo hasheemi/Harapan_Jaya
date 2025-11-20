@@ -24,13 +24,13 @@ export default function Campaign() {
         <p className="text-3xl font-bold"> Hallo Ridwan </p>
         <p> Siap menjadi pahlawan hijau hari ini? </p>
       </div>
-      <div className="grid grid-cols-3 w-full gap-4">
+      <div className="grid grid-cols-1 w-full gap-4 sm:grid-cols-3">
         <a
-          className="bg-white shadow-xl/20 border-green-950 w-full h-[150px] rounded-2xl p-4"
+          className="bg-white shadow-xl/20 border-green-950 w-full h-[150px] rounded-2xl p-4 block"
           data-aos="flip-up"
           href="/dashboard/admin/campaign"
         >
-          <div className="bg-green-800 rounded border-2 border-white w-[50px] h-[50px] flex items-center justify-center">
+          <div className="bg-green-800 rounded border-2 border-white w-[50px] h-[50px] flex items-center justify-center ">
             <i className='bx bx-message-add text-white text-2xl'></i>
           </div>
           <p className="text-xl font-bold">Buat Campaign</p>
@@ -57,7 +57,10 @@ export default function Campaign() {
         </a>
       </div>
       <section className="donation pb-20">
-        <p className="text-3xl font-bold" data-aos="fade-right">Campaign</p>
+        <div className="flex justify-between">
+          <p className="text-3xl font-bold" data-aos="fade-right">Campaign</p>
+          <a href="/dashboard/admin/campaign" className="bg-green-800 text-2xl text-white rounded-full w-10 h-10 justify-center items-center mr-5 hidden lg:flex"> {'>'} </a>
+        </div>
         <div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-12 mt-10 mx-auto justify-between">
           {donationCards.map((card, index) => (
