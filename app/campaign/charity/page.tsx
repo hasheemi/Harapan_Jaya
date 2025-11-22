@@ -313,7 +313,7 @@ export default function Page({ params }: PageProps) {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={window.location.href}
+                  value={"/charity/yayasan-mawar"}
                   readOnly
                   className="flex-1 border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
