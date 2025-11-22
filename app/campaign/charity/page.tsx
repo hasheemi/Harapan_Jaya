@@ -40,6 +40,8 @@ export default function Page({ params }: PageProps) {
   };
 
   const handleCopyLink = () => {
+    if (typeof window === "undefined") return;
+
     const currentUrl = window.location.href;
     navigator.clipboard.writeText(currentUrl);
     setIsLinkCopied(true);
