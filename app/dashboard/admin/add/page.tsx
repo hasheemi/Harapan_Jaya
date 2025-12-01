@@ -20,7 +20,7 @@ export default function AddCampaignPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-800">Buat Kampanye Baru</h1>
             </div>
@@ -48,8 +48,12 @@ export default function AddCampaignPage() {
                             <input
                                 type="number"
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
+                                className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
                                 placeholder="50000000"
+                                style={{
+                                    WebkitAppearance: "none",
+                                    MozAppearance: "textfield", // For Firefox
+                                }}
                             />
                         </div>
 
@@ -72,7 +76,7 @@ export default function AddCampaignPage() {
                             <input
                                 type="date"
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
+                                className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
                             />
                         </div>
 
@@ -83,7 +87,7 @@ export default function AddCampaignPage() {
                             <input
                                 type="date"
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
+                                className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
                             />
                         </div>
                     </div>

@@ -15,7 +15,7 @@ export default function CampaignUpdatesPage() {
             id: 1,
             campaign: "Reforest Borneo",
             organizer: "Green Earth Foundation",
-            date: "2024-11-28",
+            date: "2025-11-28",
             title: "Phase 1 Planting Complete!",
             content: "Kami telah berhasil menanam 5.000 bibit di area yang ditentukan. Terima kasih kepada semua donatur atas dukungan Anda! Masyarakat setempat sangat membantu dalam membersihkan lahan dan menyiapkan tanah.",
             image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
@@ -25,7 +25,7 @@ export default function CampaignUpdatesPage() {
             id: 2,
             campaign: "Urban Green Jakarta",
             organizer: "EcoWarriors Jakarta",
-            date: "2024-11-20",
+            date: "2025-11-20",
             title: "Site Preparation Underway",
             content: "Tim kami saat ini sedang berada di lokasi mempersiapkan untuk acara penanaman yang akan datang minggu depan. Kami membersihkan sampah dan menandai tempat untuk pohon baru.",
             image: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?auto=format&fit=crop&q=80&w=800",
@@ -35,7 +35,7 @@ export default function CampaignUpdatesPage() {
             id: 3,
             campaign: "Selamatkan Hutan Sumatra",
             organizer: "Wildlife Protection",
-            date: "2024-11-15",
+            date: "2025-11-15",
             title: "New Partnership Announced",
             content: "Kami senang mengumumkan sebuah kerjasama baru dengan departemen hutan setempat untuk memperluas area konservasi. Ini akan memungkinkan kami untuk menanam 2.000 pohon tambahan setiap tahun.",
             image: "https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -44,45 +44,33 @@ export default function CampaignUpdatesPage() {
     ];
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold text-gray-800">Kampanye </h1>
-                <p className="text-gray-500">LJadilah Pahlawan Hijau hari ini</p>
-            </div>
+        <div className="space-y-6 w-full">
             {/* FIlter */}
-            {/* <div className="w-full space-y-4 bg-leaf-50 fixed top-0 left-60 p-4 z-50 shadow-sm">
-                <p className="text-2xl font-bold"> Kampanye </p>
-                <div className="flex flex-col gap-4 px-6 sm:px-12 py-3 bg-leaf-50 rounded-xl">
-                    <div className="flex items-center gap-4 w-full">
-              <div className="relative flex-grow border border-leaf-500 rounded-lg shadow-sm">
-                <input
-                  type="text"
-                  placeholder="Cari program donasi terbaru..."
-                  className="bg-white border-none rounded-lg px-4 py-3 text-sm w-full focus:ring-2 focus:ring-leaf-400 pr-10"
-                />
-                <i className="bx bx-search absolute right-3 top-1/2 -translate-y-1/2 text-leaf-900 text-xl"></i>
+          <div className=" w-full text-black">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">Kampanye </h1>
+                <p className="text-gray-500">Jadilah Pahlawan Hijau hari ini</p>
               </div>
+              <div className="flex items-center gap-4 w-full my-4">
+                        <label className="input w-full bg-white border-2 border-leaf-500 rounded-2xl">
+                          <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none"
+                              stroke="black">
+                              <circle cx="11" cy="11" r="8"></circle>
+                              <path d="m21 21-4.3-4.3"></path>
+                            </g>
+                          </svg>
+                          <input type="search" required placeholder="Search" />
+                        </label>
               <div className="flex gap-4">
-                <div
-                  onClick={() =>
-                    setSort((prev) =>
-                      prev === "terdekat" ? "terbaru" : "terdekat"
-                    )
-                  }
-                  className="chips flex items-center gap-2 bg-leaf-500 hover:bg-leaf-600 text-white px-5 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-sm whitespace-nowrap"
-                >
-                  <i className="bx bx-sort text-base"></i>
-                  <span>
-                    Urutkan: {sort === "terdekat" ? "Terdekat" : "Terbaru"}
-                  </span>
-                </div>
-                <div className="chips flex items-center gap-2 bg-leaf-500 hover:bg-leaf-600 text-white px-5 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-sm whitespace-nowrap">
-                  <i className="bx bx-filter-alt text-base"></i>
-                  <span>Filter</span>
-                </div>
+                <button
+                className="bg-leaf-600 hover:bg-leaf-700 text-white py-3 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0"
+              >
+                Terapkan
+              </button>
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
+          </div>
+        <div className="flex flex-wrap items-center gap-3">
               <select
                 value={medan}
                 onChange={(e) => setMedan(e.target.value)}
@@ -118,17 +106,25 @@ export default function CampaignUpdatesPage() {
                 <option value="internasional">Internasional</option>
                 <option value="komunitas">Komunitas Lokal</option>
               </select>
-              <button
-                className="bg-leaf-600 hover:bg-leaf-700 text-white w-32 py-3 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0"
-              >
-                Terapkan
-              </button>
+              <div
+                  onClick={() =>
+                    setSort((prev) =>
+                      prev === "terdekat" ? "terbaru" : "terdekat"
+                    )
+                  }
+                  className="chips flex items-center gap-2 bg-leaf-500 hover:bg-leaf-600 text-white px-5 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-sm whitespace-nowrap"
+                  >
+                  <i className="bx bx-sort text-base"></i>
+                  <span>
+                    Urutkan: {sort === "terdekat" ? "Terdekat" : "Terbaru"}
+                  </span>
+                </div>
             </div>
-          </div>
-        </div> */}
+        </div>
+
 
         {/* Filter End */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {updates.map((update) => (
                     <div key={update.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                         <div className="relative h-48 w-full">
@@ -163,7 +159,7 @@ export default function CampaignUpdatesPage() {
                         </div>
                     </div>
                 ))}
-            </div>
-        </div>
+          </div>
+      </div>
     );
 }

@@ -5,6 +5,17 @@ import { useState } from "react";
 export default function UpgradePage() {
   const [isLoading, setIsLoading] = useState(false);
 
+  const [isPhoneNumber, setIsPhoneNumber] = useState(false);
+
+  const handlePhoneNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    if (value.length < 10) {
+      setIsPhoneNumber(true);
+    } else {
+      setIsPhoneNumber(false);
+    }
+  };
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
@@ -15,7 +26,7 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="mx-auto text-black">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Jadi Admin Di Resapling</h1>
         <p className="text-gray-500 mt-2">
@@ -51,7 +62,11 @@ export default function UpgradePage() {
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
                   placeholder="+62 812 3456 7890"
+                  onChange={handlePhoneNumberChange}
                 />
+                {isPhoneNumber && (
+                  <p className="text-red-500 text-sm mt-1">Nomor telepon harus memiliki minimal 10 angka</p>
+                )}
               </div>
               <div className="md:col-span-2">
               <div>
@@ -96,7 +111,11 @@ export default function UpgradePage() {
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
                   placeholder="+62 812 3456 7890"
+                  onChange={handlePhoneNumberChange}
                 />
+                {isPhoneNumber && (
+                  <p className="text-red-500 text-sm mt-1">Nomor telepon harus memiliki minimal 10 angka</p>
+                )}
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -205,7 +224,7 @@ export default function UpgradePage() {
               )}
             </button>
             <p className="text-center text-xs text-gray-500 mt-4">
-              By submitting this form, you agree to our Terms of Service and Privacy Policy.
+              Dengan mengirimkan formulir ini, Anda menyetujui Ketentuan Layanan dan Kebijakan Privasi kami.
             </p>
           </div>
         </form>
