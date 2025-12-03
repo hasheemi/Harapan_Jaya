@@ -20,7 +20,7 @@ function Podium({ item, index }: PodiumProps) {
               <img src={item.image} />
             </div>
           </div>
-          <span className="text-sm">{item.name}</span>
+          <span className="text-sm text-center">{item.name}</span>
           <span>{item.amount}</span>
         </div>
         <div

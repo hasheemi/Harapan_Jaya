@@ -1,5 +1,6 @@
 "use client"
 
+import DonationCard from "@/components/DonationCard";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,32 +16,44 @@ export default function CampaignUpdatesPage() {
         {
             id: 1,
             campaign: "Reforest Borneo",
-            organizer: "Green Earth Foundation",
+            mitra: "Green Earth Foundation",
             date: "2025-11-28",
-            title: "Phase 1 Planting Complete!",
-            content: "Kami telah berhasil menanam 5.000 bibit di area yang ditentukan. Terima kasih kepada semua donatur atas dukungan Anda! Masyarakat setempat sangat membantu dalam membersihkan lahan dan menyiapkan tanah.",
+            description: "Kami telah berhasil menanam 5.000 bibit di area yang ditentukan. Terima kasih kepada semua donatur atas dukungan Anda! Masyarakat setempat sangat membantu dalam membersihkan lahan dan menyiapkan tanah.",
             image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
-            tags: ["Milestone", "Planting"],
+            medan: "hutan",
+            location: "Borneo",
+            current: 240210,
+            target: 500000,
+            progress: 49,
+            deadline: "6 hari lagi",
         },
         {
             id: 2,
             campaign: "Urban Green Jakarta",
-            organizer: "EcoWarriors Jakarta",
+            mitra: "EcoWarriors Jakarta",
             date: "2025-11-20",
-            title: "Site Preparation Underway",
-            content: "Tim kami saat ini sedang berada di lokasi mempersiapkan untuk acara penanaman yang akan datang minggu depan. Kami membersihkan sampah dan menandai tempat untuk pohon baru.",
+            description: "Tim kami saat ini sedang berada di lokasi mempersiapkan untuk acara penanaman yang akan datang minggu depan. Kami membersihkan sampah dan menandai tempat untuk pohon baru.",
             image: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?auto=format&fit=crop&q=80&w=800",
-            tags: ["Preparation"],
+            medan: "perkotaan",
+            location: "Borneo",
+            current: 147783,
+            target: 600000,
+            progress: 23,
+            deadline: "2 Minggu lagi",
         },
         {
             id: 3,
             campaign: "Selamatkan Hutan Sumatra",
-            organizer: "Wildlife Protection",
+            mitra: "Wildlife Protection",
             date: "2025-11-15",
-            title: "New Partnership Announced",
-            content: "Kami senang mengumumkan sebuah kerjasama baru dengan departemen hutan setempat untuk memperluas area konservasi. Ini akan memungkinkan kami untuk menanam 2.000 pohon tambahan setiap tahun.",
+            description: "Kami senang mengumumkan sebuah kerjasama baru dengan departemen hutan setempat untuk memperluas area konservasi. Ini akan memungkinkan kami untuk menanam 2.000 pohon tambahan setiap tahun.",
             image: "https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            tags: ["Partnership", "Expansion"],
+            medan: "hutan",
+            location: "Borneo",
+            current: 21023,
+            target: 100000,
+            progress: 21,
+            deadline: "1 Bulan lagi",
         },
     ];
 
@@ -65,13 +78,13 @@ export default function CampaignUpdatesPage() {
                         </label>
               <div className="flex gap-4">
                 <button
-                className="bg-leaf-600 hover:bg-leaf-700 text-white py-3 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0"
+                className="md:w-full w-[15px] bg-leaf-600 hover:bg-leaf-700 text-white py-3 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0"
               >
-                Terapkan
+                <p className="md:inline! hidden">Terapkan</p> <i className="bx bx-search flex md:hidden!"></i>
               </button>
               </div>
           </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center ">
               <select
                 value={medan}
                 onChange={(e) => setMedan(e.target.value)}
@@ -131,38 +144,18 @@ export default function CampaignUpdatesPage() {
                     href={`/dashboard/campaigns/${update.id}`}
                     key={update.id}
                     >
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-                          <div className="relative h-48 w-full">
-                              <Image
-                                  src={update.image}
-                                  alt={update.title}
-                                  fill
-                                  className="object-cover"
-                              />
-                              <div className="absolute top-4 left-4">
-                                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-bold text-leaf-700 rounded-full">
-                                      {update.campaign}
-                                  </span>
-                              </div>
-                          </div>
-                          <div className="p-6">
-                              <div className="flex items-center gap-2 mb-3 text-xs text-gray-500">
-                                  <i className="bx bx-calendar"></i>
-                                  <span>{update.date}</span>
-                                  <span className="mx-1">•</span>
-                                  <span>{update.organizer}</span>
-                              </div>
-                              <h3 className="text-xl font-bold text-gray-800 mb-2">{update.title}</h3>
-                              <p className="text-gray-600 text-sm mb-4 line-clamp-3">{update.content}</p>
-                              <div className="flex flex-wrap gap-2">
-                                  {update.tags.map((tag) => (
-                                      <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
-                                          #{tag}
-                                      </span>
-                                  ))}
-                              </div>
-                          </div>
-                      </div>
+                      <DonationCard 
+                      image={update.image}
+                      title={update.campaign}
+                      mitra={update.mitra}
+                      medan={update.medan}
+                      location={update.location}
+                      description={update.description}
+                      current={update.current}
+                      target={update.target}
+                      progress={update.progress}
+                      deadline={update.deadline}
+                      />
                     </Link>
                 ))}
           </div>

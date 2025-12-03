@@ -1,8 +1,24 @@
+"use client"
+
 import Image from "next/image";
 import Podium from "./components/podium";
-import Marchindise from "@/public/marchindise.png"
+import Marchindise from "@/public/assets/img/item/Marchindise.png"
+import { useEffect, useState } from "react";
 
 export default function LeaderboardPage() {
+  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+      const handleResize = () => {
+        setIsOpen(window.innerWidth >= 768); // Assuming 768px as the desktop breakpoint
+      };
+  
+      handleResize(); // Set initial state
+      window.addEventListener("resize", handleResize);
+  
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }, []);
   // Mock Leaderboard Data
   const leaderboard = [
     { rank: 1, name: "Green Earth Foundation", trees: 1250, avatar: "https://ui-avatars.com/api/?name=Green+Earth&background=random" },
@@ -68,7 +84,7 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-20">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
@@ -120,10 +136,12 @@ export default function LeaderboardPage() {
           </table>
         </div>
       </div>
-      <div className="w-full bg-green-500 rounded-xl p-4 border-4 border-solid border-yellow-500">
-        <p className="text-xl font-bold">Ayo Jadilah Pahlawan Hijau dan dapatkan Marchindise Menarik! </p>
-        <p>Leaderboard Di reset tiap Semester masih banyak waktu untuk berbagi!</p>
-        <img src="" alt="" />
+      <div className={`fixed bottom-0 right-0 md:right-2 ${isOpen ? "w-[85%]" : "w-full"}`}>
+        <div className="relative w-full bg-green-500 rounded-xl p-4 border-4 border-solid border-yellow-500">
+          <p className="md:text-3xl! text-lg font-bold">Ayo Jadilah Pahlawan Hijau dan <br className="md:hidden"/>dapatkan Marchindise Menarik! </p>
+          <p className="md:text-lg! text-sm">Leaderboard Di reset tiap Semester masih banyak waktu untuk berbagi!</p>
+          <Image src={Marchindise} alt="Merchandise" width={isOpen ? 300 : 1} height={isOpen ? 300: 1} lazyRoot="lazy" className="absolute right-0 bottom-10" />
+        </div>
       </div>
     </div>
   );

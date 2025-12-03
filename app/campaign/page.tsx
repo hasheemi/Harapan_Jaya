@@ -134,7 +134,9 @@ export default function Campaign() {
       <section className="donation  px-6 sm:px-12 mt-4 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-12 mt-10 mx-auto justify-between">
           {donationCards.map((card, index) => (
-            <DonationCard key={index} {...card} />
+            <Link href={`/campaign/charity`}>
+              <DonationCard key={index} {...card} />
+            </Link>
           ))}
         </div>
       </section>
@@ -149,8 +151,8 @@ const donationCards = [
     image: "/assets/img/item/sinarmas.jpeg",
     title: "Sinarmas",
     description: "Menanam kembali kertas menjadi pohon bersama PT. Sinarmas",
-    current: "240,210 Bibit",
-    target: "500,000 Bibit",
+    current: 240210,
+    target: 500000,
     progress: 49,
     deadline: "6 hari lagi",
   },
@@ -158,8 +160,8 @@ const donationCards = [
     image: "/assets/img/item/ikn.jpg",
     title: "Otorita IKA-EN",
     description: "Revitalisasi Hutan di Kalimantan akibat proyek strategis",
-    current: "147,783 Bibit",
-    target: "600,000 Bibit",
+    current: 147783,
+    target: 600000,
     progress: 23,
     deadline: "2 Minggu lagi",
   },
@@ -167,8 +169,8 @@ const donationCards = [
     image: "/assets/img/item/gemarsorong.jpg",
     title: "Hulujaya",
     description: "Reboisasi Mangrove pencegah abrasi di Sorong Papua",
-    current: "21,023 Bibit",
-    target: "100,000 Bibit",
+    current: 21023,
+    target: 100000,
     progress: 21,
     deadline: "1 Bulan lagi",
   },

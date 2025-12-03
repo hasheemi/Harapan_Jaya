@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function UpgradePage() {
   const [isLoading, setIsLoading] = useState(false);
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPhoneNumber, setIsPhoneNumber] = useState(false);
 
   const handlePhoneNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -13,6 +13,12 @@ export default function UpgradePage() {
       setIsPhoneNumber(true);
     } else {
       setIsPhoneNumber(false);
+    }
+  };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
     }
   };
 
@@ -69,7 +75,7 @@ export default function UpgradePage() {
                 )}
               </div>
               <div className="md:col-span-2">
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   KTP / ID Card (JPG, PNG) <span className="text-red-500">*</span>
                 </label>
@@ -79,7 +85,37 @@ export default function UpgradePage() {
                   <p className="text-xs text-gray-400 mt-1">Max file size: 5MB</p>
                   <input type="file" className="hidden" accept="image/*" required />
                 </div>
-              </div>
+              </div> */}
+              <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                KTP / ID Card (JPG, PNG) <span className="text-red-500">*</span>
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="bukti-pembayaran"
+                />
+                <label
+                  htmlFor="bukti-pembayaran"
+                  className="cursor-pointer block"
+                >
+                  <div className="text-gray-500 mb-2">
+                    <i className="bx bx-cloud-upload text-3xl"></i>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {selectedFile
+                      ? selectedFile.name
+                      : "Klik untuk upload bukti pembayaran"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Format: JPG, PNG, PDF (max 5MB)
+                  </p>
+                </label>
+                  </div>
+            </div>
               </div>
             </div>
           </div>
@@ -160,7 +196,7 @@ export default function UpgradePage() {
               <i className="bx bxs-cloud-upload text-leaf-500"></i> Dokumen Yayasan
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Surat Izin Operasional (PDF) <span className="text-red-500">*</span>
                 </label>
@@ -170,8 +206,38 @@ export default function UpgradePage() {
                   <p className="text-xs text-gray-400 mt-1">Max file size: 10MB</p>
                   <input type="file" className="hidden" accept=".pdf" required />
                 </div>
-              </div>
+              </div> */}
               <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Surat Pendirian LSM (PDF) <span className="text-red-500">*</span>
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="bukti-pembayaran"
+                />
+                <label
+                  htmlFor="bukti-pembayaran"
+                  className="cursor-pointer block"
+                >
+                  <div className="text-gray-500 mb-2">
+                    <i className="bx bx-cloud-upload text-3xl"></i>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {selectedFile
+                      ? selectedFile.name
+                      : "Klik untuk upload bukti pembayaran"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Format: JPG, PNG, PDF (max 5MB)
+                  </p>
+                </label>
+                  </div>
+            </div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Surat Pendirian LSM (PDF) <span className="text-red-500">*</span>
                 </label>
@@ -181,8 +247,38 @@ export default function UpgradePage() {
                   <p className="text-xs text-gray-400 mt-1">Max file size: 10MB</p>
                   <input type="file" className="hidden" accept=".pdf" required />
                 </div>
-              </div>
+              </div> */}
               <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Surat Pendirian LSM (PDF) <span className="text-red-500">*</span>
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="bukti-pembayaran"
+                />
+                <label
+                  htmlFor="bukti-pembayaran"
+                  className="cursor-pointer block"
+                >
+                  <div className="text-gray-500 mb-2">
+                    <i className="bx bx-cloud-upload text-3xl"></i>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {selectedFile
+                      ? selectedFile.name
+                      : "Klik untuk upload bukti pembayaran"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Format: JPG, PNG, PDF (max 5MB)
+                  </p>
+                </label>
+                  </div>
+            </div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Surat Pengesahan Badan Hukum (PDF) <span className="text-red-500">*</span>
                 </label>
@@ -192,8 +288,38 @@ export default function UpgradePage() {
                   <p className="text-xs text-gray-400 mt-1">Max file size: 10MB</p>
                   <input type="file" accept=".pdf" required />
                 </div>
-              </div>
+              </div> */}
               <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Surat Pengesahan Badan Hukum (PDF) <span className="text-red-500">*</span>
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="bukti-pembayaran"
+                />
+                <label
+                  htmlFor="bukti-pembayaran"
+                  className="cursor-pointer block"
+                >
+                  <div className="text-gray-500 mb-2">
+                    <i className="bx bx-cloud-upload text-3xl"></i>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {selectedFile
+                      ? selectedFile.name
+                      : "Klik untuk upload bukti pembayaran"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Format: JPG, PNG, PDF (max 5MB)
+                  </p>
+                </label>
+                  </div>
+            </div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Surat Domisili Yayasan (PDF) <span className="text-red-500">*</span>
                 </label>
@@ -203,7 +329,37 @@ export default function UpgradePage() {
                   <p className="text-xs text-gray-400 mt-1">Max file size: 10MB</p>
                   <input type="file" className="file-input top-0 left-0 w-full h-full opacity-0 absolute" accept=".pdf" required />
                 </div>
-              </div>
+              </div> */}
+              <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Surat Domisili Yayasan (PDF) <span className="text-red-500">*</span>
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="bukti-pembayaran"
+                />
+                <label
+                  htmlFor="bukti-pembayaran"
+                  className="cursor-pointer block"
+                >
+                  <div className="text-gray-500 mb-2">
+                    <i className="bx bx-cloud-upload text-3xl"></i>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {selectedFile
+                      ? selectedFile.name
+                      : "Klik untuk upload bukti pembayaran"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Format: JPG, PNG, PDF (max 5MB)
+                  </p>
+                </label>
+                  </div>
+            </div>
             </div>
           </div>
 

@@ -68,7 +68,7 @@ export default function DashboardPage() {
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-gray-500 text-sm font-medium">Total Donasi Pohon</h3>
+                  <h3 className="text-gray-500 text-sm font-medium">Donasi Pohon</h3>
                 </div>
                 <p className="text-3xl font-bold text-gray-800">{user.totalTrees}</p>
               </div>
@@ -78,7 +78,7 @@ export default function DashboardPage() {
                 <i className="bx bx-wind text-white text-3xl"></i>
               </div>
               <div className="text-center">
-                <h3 className="text-gray-500 text-sm font-medium">Est. CO2 Reduced</h3>
+                <h3 className="text-gray-500 text-sm font-medium">CO2 Reduced</h3>
                 <p className="text-3xl font-bold text-gray-800">{user.co2Reduced}</p>
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
                       <td className="px-6 py-4 text-sm text-gray-600">{donation.trees}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{donation.date}</td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="badge !bg-leaf-700 !text-white">
                           Sukses
                         </span>
                       </td>

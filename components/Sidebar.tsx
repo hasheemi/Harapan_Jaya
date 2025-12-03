@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -12,6 +12,21 @@ export default function Sidebar() {
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsOpen(window.innerWidth >= 768); // Assuming 768px as the desktop breakpoint
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      console.log(isOpen);
+    };
+  }, []);
+
 
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: "bx-grid-alt" },
@@ -37,20 +52,19 @@ export default function Sidebar() {
       )}
 
       {/* Sidebar Container */}
+      <button
+          className= {`fixed right-0 top-4 p-2 bg-green-500! text-black z-50 justify-center items-center w-[50px] h-[50px] rounded-md flex focus:border-leaf-400 ${window.innerWidth >= 768? "hidden" : ""}`}
+          onClick={toggleSidebar}
+        >
+          <i className={`bx ${isOpen ? "bx-x" : "bx-menu"} text-2xl`}></i>
+        </button>
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out z-50 md:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed ${isOpen || window.innerWidth >= 768 ? "left-0" : "left-[-500px]"} top-0 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out z-50 `}
       >
         <div className="flex flex-col h-full px-4">
           {/* Logo Area */}
           <div className="py-6 border-b border-gray-100 flex items-center justify-center w-full">
-            <button
-              className="p-2 bg-green-500! text-black flex justify-center items-center w-[50px] h-[50px] rounded-md md:hidden focus:border-leaf-400"
-              onClick={toggleSidebar}
-            >
-              <i className={`bx ${isOpen ? "bx-x" : "bx-menu"} text-2xl`}></i>
-            </button>
-            <h1 className="text-2xl font-bold text-leaf-700 hidden items-center gap-2 md:flex">
+            <h1 className="text-2xl font-bold text-leaf-700 items-center gap-2">
               <i className="bx bxs-leaf"></i> Resapling
             </h1>
           </div>

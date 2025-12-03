@@ -85,7 +85,7 @@ export default function Page({ params }: PageProps) {
           <TabSection />
         </div>
 
-        <div className="fixed right-0 max-md:w-full w-[55%]">
+        <div className="right-0 max-md:w-full w-[55%]">
           <div className="main w-[90%] mx-auto min-h-[40vh] bg-[#f7fcf7] my-4 sm:my-8 shadow-lg shadow-green-100/30 border border-green-50 rounded-lg p-6">
             {/* <!-- Progress Section --> */}
             <div className="mb-6">
@@ -206,12 +206,12 @@ export default function Page({ params }: PageProps) {
                   onClick={() =>
                     setJumlahPohon((prev) => Math.max(1, prev - 1))
                   }
-                  className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center hover:bg-green-200 transition-colors"
+                  className="w-10 h-10 rounded-full bg-red-100! text-green-700 flex items-center justify-center"
                 >
                   -
                 </button>
                 <input
-                  type="number"
+                  type="text"
                   min="1"
                   value={jumlahPohon}
                   onChange={(e) =>
@@ -222,7 +222,7 @@ export default function Page({ params }: PageProps) {
                 <button
                   type="button"
                   onClick={() => setJumlahPohon((prev) => prev + 1)}
-                  className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center hover:bg-green-200 transition-colors"
+                  className="w-10 h-10 rounded-full bg-green-100! text-green-700 flex items-center justify-center hover:bg-green-200 transition-colors"
                 >
                   +
                 </button>

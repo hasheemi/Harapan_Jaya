@@ -46,20 +46,20 @@ function DataShow({campaign}: {campaign: any}) {
   return (
     <>
       <div className="w-full border-2 border-gray-200 rounded-xl flex text-black">
-        <div className="flex-10">
-          <div className="bg-white rounded-xl shadow-md p-4 max-w-full overflow-x-auto">
-            <div className="flex justify-between items-center mb-4">
+        <div className="md:flex-10 w-full">
+          <div className="bg-white rounded-xl shadow-md p-4 max-w-full overflow-x-auto relative">
+            {/* <div className="flex justify-between w-full items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
                 Tabel Histori
               </h2>
-              <div className="flex gap-4">
-                <button className="btn !bg-leaf-700 !text-white">
-                  Export ke CSV
+              <div className="flex gap-4 md:w-full">
+                <button className="btn btn-xs !bg-leaf-700 !text-white">
+                  <p className="md:text-sm text-xs">Export ke CSV</p>
                 </button>
               </div>
             </div>
 
-            <div className="mb-4 flex space-x-4">
+            <div className="mb-4 flex w-full space-x-4">
               <input
                 type="text"
                 placeholder="Search..."
@@ -67,45 +67,69 @@ function DataShow({campaign}: {campaign: any}) {
               />
               <select className="border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option>Filter</option>
-                {/* Add more filter options here */}
               </select>
+            </div> */}
+            <div className="sticky top-0 z-10 bg-white pb-4">
+              <div className="flex justify-between w-full items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Tabel Histori
+                </h2>
+                <div className="flex gap-4 md:w-full">
+                  <button className="btn btn-xs !bg-leaf-700 !text-white">
+                    <p className="md:text-sm text-xs">Export ke CSV</p>
+                  </button>
+                </div>
+              </div>
+              <div className="mb-4 flex w-full space-x-4">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="grow border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <select className="border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>Filter</option>
+                  {/* Add more filter options here */}
+                </select>
+              </div>
             </div>
 
-            <table className="min-w-full border-collapse border border-gray-200">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-200 p-4 text-left text-sm font-semibold text-gray-700">
-                    Tanggal
-                  </th>
-                  <th className="border border-gray-200 p-4 text-left text-sm font-semibold text-gray-700">
-                    Username
-                  </th>
-                  <th className="border border-gray-200 p-4 text-left text-sm font-semibold text-gray-700">
-                    Jumlah
-                  </th>
-                  <th className="border border-gray-200 p-4 text-left text-sm font-semibold text-gray-700">
-                    Status
-                  </th>
-                  <th className="border border-gray-200 p-4 text-center w-16 text-sm font-semibold text-gray-700">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Example usage of DataCreate component as a table row */}
-                {
-                  campaign.donors.map((donation: any) => (
-                    <DataCreate
-                      key={donation.id}
-                      tanggal={donation.date}
-                      username={donation.name}
-                      jumlah={donation.amount}
-                      status={donation.status}
-                    />
-                  ))
-                }
-              </tbody>
-            </table>
+            <div className="max-h-[400px] overflow-y-auto">
+              <table className="min-w-full border-collapse border border-gray-200">
+                <thead>
+                  <tr className="bg-gray-100 sticky top-0">
+                    <th className="border border-gray-200 md:p-4 p-2 text-center text-sm font-semibold text-gray-700">
+                      Tanggal
+                    </th>
+                    <th className="border border-gray-200 md:p-4 p-2 text-center text-sm font-semibold text-gray-700">
+                      Username
+                    </th>
+                    <th className="border border-gray-200 md:p-4 p-2 text-center text-sm font-semibold text-gray-700">
+                      Jumlah
+                    </th>
+                    <th className="border border-gray-200 md:p-4 p-2 text-center text-sm font-semibold text-gray-700">
+                      Status
+                    </th>
+                    <th className="border border-gray-200 md:p-4 p-2 text-center w-16 text-sm font-semibold text-gray-700">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Example usage of DataCreate component as a table row */}
+                  {
+                    campaign.donors.map((donation: any) => (
+                      <DataCreate
+                        key={donation.id}
+                        tanggal={donation.date}
+                        username={donation.name}
+                        jumlah={donation.amount}
+                        status={donation.status}
+                      />
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -117,10 +141,9 @@ function DataShow({campaign}: {campaign: any}) {
 function Data({campaign}: {campaign: any}){
     return(
         <>
-                
               <div className="p-6 col-span-2">
                     <h3 className="text-gray-500 text-sm font-medium mb-2">Total Donasi</h3>
-                    <p className="text-5xl font-bold text-gray-800">Rp {campaign.raised.toLocaleString()}</p>
+                    <p className="md:text-5xl text-3xl font-bold text-gray-800">Rp {campaign.raised.toLocaleString()}</p>
                     <div className="w-full bg-gray-100 rounded-full h-2 mt-4">
                         <div
                             className="bg-leaf-500 h-2 rounded-full"
@@ -254,8 +277,8 @@ function CampaignData({campaign}: {campaign: any}) {
 function Description({campaign}: {campaign: any}){
   return(
     <>
-      <div className="p-4 text-black flex gap-4">
-        <div className="flex flex-col w-sm items-center bg-white rounded-2xl border-2 border-gray-100 p-4 h-max">
+      <div className="p-4 text-black flex md:flex-row! flex-col gap-4">
+        <div className="flex md:hidden! flex-col w-full items-center bg-white rounded-2xl border-2 border-gray-100 p-4 h-max">
           <Image src="/assets/img/item/sinarmas.jpeg" alt="" width={350} height={100}
             className="object-cover rounded-xl mt-4" />
 
@@ -277,7 +300,32 @@ function Description({campaign}: {campaign: any}){
             Check
           </a>
         </div>
-        <CampaignData campaign={campaign} />
+        {/* Card in desktop */}
+        <div className="flex-col w-sm md:flex hidden items-center bg-white rounded-2xl border-2 border-gray-100 p-4 h-max">
+          <Image src="/assets/img/item/sinarmas.jpeg" alt="" width={350} height={100}
+            className="object-cover rounded-xl mt-4" />
+
+          <h3 className="text-[8rem] mt-4">
+            Menanam kembali kertas menjadi pohon bersama PT. Sinarmas
+          </h3>
+
+          <div className="mt-4 inline-flex justify-between w-full">
+            <p> Target Terkumpul </p>
+            <p className="font-bold"> Rp 30.000.000</p>
+          </div>
+
+          <div className="w-full bg-gray-100 rounded-full h-2 mt-4">
+            <div className="bg-leaf-500 h-2 rounded-full"
+              style={{ width: `${(campaign.raised / campaign.target) * 100}%` }}></div>
+          </div>
+
+          <a href="/campaign/charity" className="btn !bg-leaf-700 text-white mt-4 w-full">
+            Check
+          </a>
+        </div>
+        <div className="flex-1">
+          <CampaignData campaign={campaign} />
+        </div>
       </div>
     </>
   )
@@ -300,6 +348,9 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
             { id: 2, name: "Jane Smith", amount: 250000,  status:"Success", date: "2025-11-27" },
             { id: 3, name: "Anonymous", amount: 100000,  status:"Success", date: "2025-11-26" },
             { id: 4, name: "Tech Corp", amount: 5000000,  status:"Success", date: "2025-11-25" },
+            { id: 5, name: "Tech Corp", amount: 5000000,  status:"Success", date: "2025-11-25" },
+            { id: 6, name: "Tech Corp", amount: 5000000,  status:"Success", date: "2025-11-25" },
+            { id: 7, name: "Tech Corp", amount: 5000000,  status:"Success", date: "2025-11-25" },
         ],
     };
     const [activeTab, setActiveTab] = useState("Deskripsi");
@@ -314,12 +365,13 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">{campaign.title}</h1>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <h1 className="md:text-3xl text-xl font-bold text-gray-800">{campaign.title}</h1>
+                    <div className="flex md:flex-row flex-col gap-2 md:items-center mt-2 text-sm text-gray-500">
                         <span className="flex items-center gap-1"><i className="bx bx-map"></i> {campaign.location}</span>
                         <span className="flex items-center gap-1"><i className="bx bx-calendar"></i> Planting: {campaign.plantingDate}</span>
-                        <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-bold">{campaign.status}</span>
+                        <span className="md:inline-block hidden px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-bold">{campaign.status}</span>
                     </div>
+                    <span className="w-fit my-4 md:hidden px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-bold">{campaign.status}</span>
                 </div>
                 <div className="flex gap-2">
                     <div className="flex p-0 border-2 border-gray-200 text-black rounded-lg ">
