@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     const lokasi = formData.get("lokasi") as string;
     const tanggalMulai = formData.get("tanggal_mulai") as string;
     const tanggalBerakhir = formData.get("tanggal_berakhir") as string;
+    const tanggalPlanning = formData.get("tanggal_planning") as string;
     const deskripsi = formData.get("deskripsi") as string;
     const medan = formData.get("medan") as string;
     const jenisPohon = formData.get("jenis_pohon") as string;
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
       { field: lokasi, name: "lokasi" },
       { field: tanggalMulai, name: "tanggal_mulai" },
       { field: tanggalBerakhir, name: "tanggal_berakhir" },
+      { field: tanggalPlanning, name: "tanggal_planning" },
       { field: deskripsi, name: "deskripsi" },
       { field: medan, name: "medan" },
       { field: jenisPohon, name: "jenis_pohon" },
@@ -90,14 +92,13 @@ export async function POST(request: NextRequest) {
 
     const campaignData = {
       // ID unik kampanye
-      id: campaignId, // bisa juga pakai field terpisah
-
-      // Data utama kampanye
+      id: campaignId,
       judul: judul.trim(),
       target_donasi: targetDonasi,
       lokasi: lokasi.trim(),
-      tanggal_mulai: new Date(tanggalMulai),
-      tanggal_berakhir: new Date(tanggalBerakhir),
+      tanggal_mulai: new Date(tanggalMulai).toISOString(),
+      tanggal_berakhir: new Date(tanggalBerakhir).toISOString(),
+      tanggal_planning: new Date(tanggalPlanning).toISOString(),
       poster_url: uploadResult.result?.poster || "",
       deskripsi_url: uploadResult.result?.description || "",
 
@@ -105,8 +106,6 @@ export async function POST(request: NextRequest) {
       medan: medan,
       jenis_pohon: jenisPohon.trim(),
       jenis_pohon_asli: jenisPohonAsli || jenisPohon.trim(),
-
-      // Data lokasi (flattened)
       lokasi_lat: lat,
       lokasi_lng: lng,
 
@@ -116,22 +115,13 @@ export async function POST(request: NextRequest) {
       status: "draft",
       created_by: userId,
       created_by_email: userEmail,
-      created_by_name: (formData.get("userName") as string) || null,
+      created_by_yayasan: (formData.get("userName") as string) || null,
 
       // Stats (initial values)
       total_donasi: 0,
       total_donatur: 0,
       total_pohon: 0,
       progress_percentage: 0,
-
-      // Search optimization
-      search_keywords: generateSearchKeywords(
-        judul,
-        lokasi,
-        jenisPohon,
-        deskripsi
-      ),
-      lowercase_judul: judul.toLowerCase().trim(),
 
       // Upload metadata
       upload_image_filename:
@@ -186,52 +176,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Helper function untuk generate search keywords
-function generateSearchKeywords(
-  judul: string,
-  lokasi: string,
-  jenisPohon: string,
-  deskripsi: string
-): string[] {
-  const keywords = new Set<string>();
-
-  // Tambahkan kata-kata dari judul
-  judul
-    .toLowerCase()
-    .split(/[\s,.;!?]+/)
-    .forEach((word) => {
-      if (word.length > 2) keywords.add(word);
-    });
-
-  // Tambahkan lokasi
-  lokasi
-    .toLowerCase()
-    .split(/[\s,.;!?]+/)
-    .forEach((word) => {
-      if (word.length > 2) keywords.add(word);
-    });
-
-  // Tambahkan jenis pohon
-  jenisPohon
-    .toLowerCase()
-    .split(/[\s,.;!?]+/)
-    .forEach((word) => {
-      if (word.length > 2) keywords.add(word);
-    });
-
-  // Tambahkan kata-kata penting dari deskripsi (tanpa HTML tags)
-  const cleanDescription = deskripsi
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-
-  cleanDescription.split(/[\s,.;!?]+/).forEach((word) => {
-    if (word.length > 3) keywords.add(word);
-  });
-
-  return Array.from(keywords);
 }
 
 export async function GET() {

@@ -61,6 +61,7 @@ export default function AddCampaignPage() {
   >([]);
   const [showLainnyaInput, setShowLainnyaInput] = useState(false);
   const [lainnyaValue, setLainnyaValue] = useState("");
+  const [tanggalPlanning, setTanggalPlanning] = useState("");
 
   // Map state
   const [coords, setCoords] = useState<[number, number] | null>(null);
@@ -133,10 +134,22 @@ export default function AddCampaignPage() {
     }
 
     // Validate dates
+
     const startDate = new Date(tanggalMulai);
+    const planningDate = new Date(tanggalPlanning);
     const endDate = new Date(tanggalBerakhir);
     if (endDate <= startDate) {
       setError("Tanggal berakhir harus setelah tanggal mulai");
+      return;
+    }
+
+    if (planningDate < startDate) {
+      setError("Tanggal planning harus setelah tanggal mulai kampanye");
+      return;
+    }
+
+    if (planningDate > endDate) {
+      setError("Tanggal planning harus sebelum tanggal berakhir kampanye");
       return;
     }
 
@@ -154,6 +167,7 @@ export default function AddCampaignPage() {
       formData.append("lokasi", lokasi);
       formData.append("tanggal_mulai", tanggalMulai);
       formData.append("tanggal_berakhir", tanggalBerakhir);
+      formData.append("tanggal_planning", tanggalPlanning);
       formData.append("deskripsi", description);
       formData.append("medan", selectedMedan);
       formData.append("jenis_pohon", finalJenisPohon);
@@ -286,7 +300,8 @@ export default function AddCampaignPage() {
             {/* Target Donasi */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Target Donasi (Rp) <span className="text-red-500">*</span>
+                Target Donasi (jumlah bibit pohon){" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -295,7 +310,7 @@ export default function AddCampaignPage() {
                 required
                 min="0"
                 className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
-                placeholder="50000000"
+                placeholder="5000"
                 style={{
                   WebkitAppearance: "none",
                   MozAppearance: "textfield",
@@ -403,6 +418,22 @@ export default function AddCampaignPage() {
                 />
               </div>
             )}
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tanggal Planning Penanaman <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              value={tanggalPlanning}
+              onChange={(e) => setTanggalPlanning(e.target.value)}
+              required
+              min={tanggalMulai || new Date().toISOString().split("T")[0]}
+              className="text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-leaf-500 focus:border-leaf-500 outline-none transition-all"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Tanggal rencana penanaman pohon akan dilaksanakan
+            </p>
           </div>
 
           {/* Map */}

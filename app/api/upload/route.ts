@@ -204,9 +204,17 @@ export async function POST(req: NextRequest) {
       } else {
         // Untuk gambar, optimasi dengan Sharp
         console.log(`Optimizing image: ${posterFile.name}`);
+        // const optimizedBuffer = await sharp(buffer)
+        //   .resize(1200, 800, { fit: "inside", withoutEnlargement: true })
+        //   .webp({ quality: 80 }) // Quality 80 untuk balance quality/size
+        //   .toBuffer();
         const optimizedBuffer = await sharp(buffer)
-          .resize(1200, 800, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 80 }) // Quality 80 untuk balance quality/size
+          .resize(1400, null, { withoutEnlargement: true })
+          .webp({
+            quality: 90,
+            nearLossless: true,
+            effort: 4,
+          })
           .toBuffer();
 
         fileName = `${campaignId}-poster-${timestamp}-${randomString}.webp`;

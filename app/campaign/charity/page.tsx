@@ -306,7 +306,7 @@ export default function Page({ params }: PageProps) {
             <button
               type="submit"
               disabled={!selectedFile}
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full !bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               Konfirmasi Donasi {jumlahPohon} Pohon
             </button>
