@@ -1,8 +1,75 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function DashboardPage() {
+  const [userDonations, setUserDonations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Ambil data user dari localStorage
+  const [localData, setLocalData] = useState<any>(null);
+
+  useEffect(() => {
+    // Ambil data user dari localStorage
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsedData = JSON.parse(stored);
+        setLocalData(parsedData);
+      }
+    } catch (err) {
+      console.warn("LocalStorage parse failed:", err);
+    }
+  }, []);
+
+  // Ambil data donasi user dari Firebase
+  useEffect(() => {
+    const fetchUserDonations = async () => {
+      if (!localData?.email) return;
+
+      setIsLoading(true);
+      try {
+        const transactionsRef = collection(db, "transactionsv2");
+        const q = query(
+          transactionsRef,
+          where("user_email", "==", localData.email),
+          orderBy("created_at", "desc"),
+          limit(6)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const donations: any[] = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          donations.push({
+            id: doc.id,
+            ...data,
+            created_at: data.created_at?.toDate?.() || null,
+          });
+        });
+
+        setUserDonations(donations);
+      } catch (error) {
+        console.error("Error fetching user donations:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserDonations();
+  }, [localData?.email]);
+
   function formatDate(isoString: any) {
     if (!isoString) return "";
     const d = new Date(isoString);
@@ -28,8 +95,30 @@ export default function DashboardPage() {
 
     return `${day} ${month} ${year}`;
   }
-  // Hardcoded User Data
-  const user = {
+
+  // Format tanggal untuk display di tabel
+  const formatDisplayDate = (date: Date | null) => {
+    if (!date) return "-";
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Hari ini";
+    if (diffDays === 1) return "Kemarin";
+    if (diffDays < 7) return `${diffDays} hari lalu`;
+
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // Data untuk latest donation (ambil yang terbaru)
+  const latestDonation = userDonations.length > 0 ? userDonations[0] : null;
+
+  // Hardcoded fallback data jika tidak ada data dari Firebase
+  const fallbackUser = {
     name: "Ridwan Adisurya",
     email: "ridwan@example.com",
     joinDate: "November 2023",
@@ -41,25 +130,22 @@ export default function DashboardPage() {
     pollutionReduced: "12%",
   };
 
-  const localData = JSON.parse(localStorage.getItem("user") ?? "null");
-  console.log(localData);
-  // Mock Donation History
-  const donations = [
-    { id: 1, campaign: "Reforest Borneo", trees: 50, date: "2024-11-25" },
-    { id: 2, campaign: "Urban Green Jakarta", trees: 20, date: "2024-11-10" },
-    { id: 3, campaign: "Save Sumatra Tigers", trees: 30, date: "2024-10-05" },
-    { id: 4, campaign: "Mangrove Restoration", trees: 45, date: "2024-09-20" },
-  ];
+  // Hitung total pohon dari data donasi
+  const totalTreesFromDonations = userDonations.reduce((sum, donation) => {
+    return sum + (donation.jumlah_pohon || 0);
+  }, 0);
 
-  // Latest Donation
-  const latestDonation = donations[0];
+  // Hitung CO2 yang direduksi (asumsi: 1 pohon = 25 kg CO2/tahun)
+  const calculatedCO2 = (totalTreesFromDonations * 25).toLocaleString("id-ID");
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-gray-500">Selamat Datang, {localData.name}!</p>
+          <p className="text-gray-500">
+            Selamat Datang, {localData?.name || fallbackUser.name}!
+          </p>
         </div>
         <Link
           href="/dashboard/campaigns"
@@ -74,17 +160,22 @@ export default function DashboardPage() {
         {/* Profile Card */}
         <div className="h-full bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
           <Image
-            src={localData.photo}
-            alt={localData.name}
+            src={localData?.photo || fallbackUser.avatar}
+            alt={localData?.name || "User"}
             width={60}
             height={60}
             className="rounded-full"
           />
           <div className="text-center">
-            <h3 className="font-semibold text-gray-800">{localData.name}</h3>
-            <p className="text-sm text-gray-500">{localData.email}</p>
+            <h3 className="font-semibold text-gray-800">
+              {localData?.name || fallbackUser.name}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {localData?.email || fallbackUser.email}
+            </p>
             <p className="text-xs text-leaf-500 mt-1">
-              Member since {formatDate(localData.createdAt)}
+              Member since{" "}
+              {formatDate(localData?.createdAt) || fallbackUser.joinDate}
             </p>
           </div>
         </div>
@@ -104,7 +195,9 @@ export default function DashboardPage() {
                   </h3>
                 </div>
                 <p className="text-3xl font-bold text-gray-800">
-                  {user.totalTrees}
+                  {userDonations.length > 0
+                    ? totalTreesFromDonations
+                    : fallbackUser.totalTrees}
                 </p>
               </div>
             </div>
@@ -117,7 +210,9 @@ export default function DashboardPage() {
                   CO2 Reduced
                 </h3>
                 <p className="text-3xl font-bold text-gray-800">
-                  {user.co2Reduced}
+                  {userDonations.length > 0
+                    ? calculatedCO2 + " kg"
+                    : fallbackUser.co2Reduced}
                 </p>
               </div>
             </div>
@@ -134,19 +229,46 @@ export default function DashboardPage() {
               <h3 className="text-leaf-100 font-medium mb-1">
                 Kontribusi Terakhir
               </h3>
-              <h2 className="text-2xl font-bold mb-4">
-                {latestDonation.campaign}
-              </h2>
-              <div className="flex items-center gap-4">
-                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg">
-                  <p className="text-xs text-leaf-100">Pohon yang ditanam</p>
-                  <p className="text-xl font-bold">{latestDonation.trees}</p>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg">
-                  <p className="text-xs text-leaf-100">Tanggal</p>
-                  <p className="text-xl font-bold">{latestDonation.date}</p>
-                </div>
-              </div>
+
+              {latestDonation ? (
+                <>
+                  <h2 className="text-2xl font-bold mb-4">
+                    {latestDonation.campaign_title || "Donasi Pohon"}
+                  </h2>
+                  <div className="flex items-center gap-4">
+                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg">
+                      <p className="text-xs text-leaf-100">
+                        Pohon yang ditanam
+                      </p>
+                      <p className="text-xl font-bold">
+                        {latestDonation.jumlah_pohon || 0}
+                      </p>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg">
+                      <p className="text-xs text-leaf-100">Tanggal</p>
+                      <p className="text-xl font-bold">
+                        {formatDisplayDate(latestDonation.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-bold mb-4">-</h2>
+                  <div className="flex items-center gap-4">
+                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg">
+                      <p className="text-xs text-leaf-100">
+                        Pohon yang ditanam
+                      </p>
+                      <p className="text-xl font-bold">-</p>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg">
+                      <p className="text-xs text-leaf-100">Tanggal</p>
+                      <p className="text-xl font-bold">-</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             <i className="bx bxs-tree absolute -bottom-4 -right-4 text-9xl text-white/10"></i>
           </div>
@@ -155,49 +277,77 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
               <h3 className="font-bold text-gray-800">Riwayat Donasi</h3>
-              <Link
-                href="#"
-                className="text-sm text-leaf-600 hover:text-leaf-700 font-medium"
-              >
-                Lihat Semua
-              </Link>
+              {userDonations.length > 0 && (
+                <Link
+                  href="#"
+                  className="text-sm text-leaf-600 hover:text-leaf-700 font-medium"
+                >
+                  Lihat Semua
+                </Link>
+              )}
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
-                  <tr>
-                    <th className="px-6 py-3 font-medium">Kampanye</th>
-                    <th className="px-6 py-3 font-medium">
-                      Pohon yang ditanam
-                    </th>
-                    <th className="px-6 py-3 font-medium">Tanggal</th>
-                    <th className="px-6 py-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {donations.map((donation) => (
-                    <tr
-                      key={donation.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                        {donation.campaign}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {donation.trees}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {donation.date}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="badge !bg-leaf-700 !text-white">
-                          Sukses
-                        </span>
-                      </td>
+              {isLoading ? (
+                <div className="p-6 text-center">
+                  <p className="text-gray-500">Memuat data...</p>
+                </div>
+              ) : userDonations.length > 0 ? (
+                <table className="w-full text-left">
+                  <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                    <tr>
+                      <th className="px-6 py-3 font-medium">Kampanye</th>
+                      <th className="px-6 py-3 font-medium">
+                        Pohon yang ditanam
+                      </th>
+                      <th className="px-6 py-3 font-medium">Tanggal</th>
+                      <th className="px-6 py-3 font-medium">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {userDonations.map((donation) => (
+                      <tr
+                        key={donation.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                          {donation.campaign_title || "Donasi Pohon"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {donation.jumlah_pohon || 0}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {formatDisplayDate(donation.created_at)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="badge !bg-leaf-700 !text-white">
+                            Sukses
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="p-6 text-center">
+                  <div className="text-gray-400 mb-4">
+                    <i className="bx bx-tree text-5xl"></i>
+                  </div>
+                  <h4 className="text-lg font-medium text-gray-700 mb-2">
+                    Belum ada donasi
+                  </h4>
+                  <p className="text-gray-500 mb-4">
+                    Mulai kontribusi Anda untuk lingkungan dengan donasi pohon
+                    pertama!
+                  </p>
+                  <Link
+                    href="/dashboard/campaigns"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-leaf-500 hover:bg-leaf-700 text-white rounded-lg transition-colors"
+                  >
+                    <i className="bx bx-plus-circle"></i>
+                    Donasi Sekarang
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -230,7 +380,9 @@ export default function DashboardPage() {
             </div>
             <div className="text-center mb-6 p-4 bg-leaf-50 rounded-lg border border-leaf-100">
               <p className="text-sm text-gray-600">Peringkatmu </p>
-              <p className="text-4xl font-bold text-black">#{user.rank}</p>
+              <p className="text-4xl font-bold text-black">
+                #{fallbackUser.rank}
+              </p>
               <p className="text-xs text-gray-500 mt-1">Top 15 Bulan ini!</p>
             </div>
             <div className="space-y-4">

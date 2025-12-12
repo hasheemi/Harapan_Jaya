@@ -6,6 +6,7 @@ import TabSection from "./TabSection";
 import Modal from "@/components/Modal";
 import { useState, useEffect } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 interface CampaignData {
@@ -48,6 +49,7 @@ export default function Page({ params }: PageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [deskripsiHtml, setDeskripsiHtml] = useState<string>("");
   const [daysLeft, setDaysLeft] = useState<number>(0);
+  const [recentDonations, setRecentDonations] = useState<any[]>([]);
 
   // Ambil data user dari localStorage
   useEffect(() => {
@@ -165,6 +167,65 @@ export default function Page({ params }: PageProps) {
     fetchCampaignData();
   }, [params]);
 
+  useEffect(() => {
+    const fetchRecentDonations = async () => {
+      console.log(campaignData?.id);
+      if (!campaignData?.id) return;
+
+      try {
+        const transactionsRef = collection(db, "transactionsv2");
+        const q = query(
+          transactionsRef,
+          where("campaign_id", "==", campaignData.id),
+          orderBy("created_at", "desc"),
+          limit(4)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const donations: any[] = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          donations.push({
+            id: doc.id,
+            ...data,
+            created_at: data.created_at?.toDate?.() || null,
+          });
+        });
+
+        setRecentDonations(donations);
+      } catch (error) {
+        console.error("Error fetching recent donations:", error);
+      }
+    };
+
+    if (campaignData?.id) {
+      fetchRecentDonations();
+    }
+  }, [campaignData?.id]);
+
+  // Format tanggal relatif
+  const formatRelativeTime = (date: Date) => {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return `${diffInSeconds} detik yang lalu`;
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} menit yang lalu`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} jam yang lalu`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)} hari yang lalu`;
+    if (diffInSeconds < 2592000)
+      return `${Math.floor(diffInSeconds / 604800)} minggu yang lalu`;
+
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   const handleDonasiClick = () => {
     setActiveModal("donasi");
   };
@@ -204,6 +265,10 @@ export default function Page({ params }: PageProps) {
     try {
       if (!campaignData) {
         alert("Campaign tidak ditemukan");
+        return;
+      }
+      if (jumlahPohon < 1) {
+        alert("ngotak woy");
         return;
       }
 
@@ -431,22 +496,50 @@ export default function Page({ params }: PageProps) {
             </div>
 
             {/* <!-- Recent Donation --> */}
+            {/* Recent Donation */}
             <div>
               <h3 className="font-semibold text-green-800 mb-3">
                 Donasi Terbaru
               </h3>
-              <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm">
-                <div className="text-lg font-bold text-green-700">
-                  {campaignData.total_donatur > 0
-                    ? "10 Pohon"
-                    : "Belum ada donasi"}
+
+              {recentDonations.length > 0 ? (
+                <div className="space-y-3">
+                  {recentDonations.map((donation) => (
+                    <div
+                      key={donation.id}
+                      className="p-3 bg-white rounded-lg border border-green-100 shadow-sm hover:bg-green-50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-base font-bold text-green-700">
+                            {donation.jumlah_pohon} Pohon
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            oleh{" "}
+                            {donation.is_anonim
+                              ? "Donatur Anonim"
+                              : donation.user_name}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {donation.created_at
+                            ? formatRelativeTime(donation.created_at)
+                            : "Baru saja"}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
-                  {campaignData.total_donatur > 0
-                    ? `oleh ${campaignData.created_by} • 1 hari lalu`
-                    : "Jadilah yang pertama mendonasikan pohon!"}
+              ) : (
+                <div className="p-4 bg-white rounded-lg border border-green-100 shadow-sm text-center">
+                  <div className="text-lg font-bold text-green-700 mb-1">
+                    Belum ada donasi
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Jadilah yang pertama mendonasikan pohon!
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

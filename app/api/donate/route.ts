@@ -1,40 +1,44 @@
+// app/api/donate/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
 import {
   collection,
   addDoc,
   updateDoc,
   doc,
-  serverTimestamp,
   query,
   where,
   getDocs,
+  serverTimestamp,
+  increment,
 } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export async function POST(request: NextRequest) {
-  console.log("API route dipanggil");
-
   try {
     const data = await request.json();
-    console.log("Data donation diterima:", data);
 
-    // Validasi minimal
-    if (!data.jumlah_pohon || !data.campaign_id) {
+    console.log("📥 Data diterima:", {
+      jumlah_pohon: data.jumlah_pohon,
+      total_donasi: data.total_donasi,
+      user_email: data.user_email,
+      campaign_id: data.campaign_id,
+    });
+
+    // Validasi data
+    if (!data.jumlah_pohon || !data.total_donasi || !data.campaign_id) {
       return NextResponse.json(
-        { error: "Jumlah pohon dan campaign ID diperlukan" },
+        { error: "Data tidak lengkap" },
         { status: 400 }
       );
     }
 
-    const transactionId = `TRX${Date.now()}${Math.floor(Math.random() * 1000)}`;
-    const tanggal = new Date().toISOString();
+    const tanggal = new Date();
 
-    // Data transaksi lengkap
-    const transaction = {
-      id: transactionId,
+    // 1. Simpan transaksi ke transactionsv2
+    console.log("💾 Menyimpan transaksi...");
+    const transactionRef = await addDoc(collection(db, "transactionsv2"), {
       jumlah_pohon: data.jumlah_pohon,
       total_donasi: data.total_donasi,
-      status: "verified",
       user_email: data.user_email || "anonim@example.com",
       user_name: data.user_name || "Donatur Anonim",
       user_photo: data.user_photo || "",
@@ -43,153 +47,176 @@ export async function POST(request: NextRequest) {
       campaign_yayasan: data.campaign_yayasan || "",
       lokasi: data.lokasi || "",
       jenis_pohon: data.jenis_pohon || "",
-      tanggal_donasi: tanggal,
-      bukti_pembayaran: "demo_verifikasi.jpg",
       is_anonim: data.is_anonim || false,
-      verified_at: tanggal,
-      verified_by: "system",
-      verification_notes: "Auto verified via API",
+      status: "completed",
+      payment_method: "qris",
       created_at: serverTimestamp(),
-    };
+      updated_at: serverTimestamp(),
+    });
 
-    console.log("Menyimpan transaksi:", transaction);
+    console.log("✅ Transaksi tersimpan dengan ID:", transactionRef.id);
 
+    // 2. Update campaign data di campaignsv2
     try {
-      // 1. Simpan transaksi
-      await addDoc(collection(db, "transactionsv2"), transaction);
-      console.log("Transaksi berhasil disimpan");
-
-      // 2. CARI CAMPAIGN BERDASARKAN FIELD id (bukan doc.id)
-      try {
-        console.log("Mencari campaign dengan field id:", data.campaign_id);
-
-        // Query untuk mencari campaign berdasarkan field "id"
-        const campaignsQuery = query(
-          collection(db, "campaignsv2"),
-          where("id", "==", data.campaign_id)
-        );
-
-        const querySnapshot = await getDocs(campaignsQuery);
-
-        if (querySnapshot.empty) {
-          console.warn(
-            `Campaign dengan field id '${data.campaign_id}' tidak ditemukan`
-          );
-          // Lanjutkan meskipun campaign tidak ditemukan
-        } else {
-          const campaignDoc = querySnapshot.docs[0];
-          const campaignData = campaignDoc.data();
-
-          console.log("Campaign ditemukan:", {
-            documentId: campaignDoc.id,
-            fieldId: campaignData.id,
-            judul: campaignData.judul,
-          });
-
-          // Hitung nilai baru untuk campaign
-          const currentTotalDonasi = campaignData.total_donasi || 0;
-          const currentTotalPohon = campaignData.total_pohon || 0;
-          const currentTotalDonatur = campaignData.total_donatur || 0;
-          const currentTargetDonasi = campaignData.target_donasi || 0;
-
-          const newTotalDonasi = currentTotalDonasi + data.total_donasi;
-          const newTotalPohon = currentTotalPohon + data.jumlah_pohon;
-          const newTotalDonatur = currentTotalDonatur + 1;
-
-          // Hitung progress percentage
-          const targetValue = currentTargetDonasi * 15000;
-          const newProgress =
-            targetValue > 0
-              ? Math.round((newTotalDonasi / targetValue) * 100)
-              : 0;
-
-          // Update campaign menggunakan document ID yang ditemukan
-          await updateDoc(doc(db, "campaignsv2", campaignDoc.id), {
-            total_donasi: newTotalDonasi,
-            total_pohon: newTotalPohon,
-            total_donatur: newTotalDonatur,
-            progress_percentage: newProgress,
-            updated_at: serverTimestamp(),
-          });
-
-          console.log("Campaign berhasil diupdate:", {
-            total_donasi: newTotalDonasi,
-            total_pohon: newTotalPohon,
-            total_donatur: newTotalDonatur,
-            progress_percentage: newProgress,
-          });
-        }
-      } catch (campaignError: any) {
-        console.error("Error update campaign:", campaignError.message);
-        // Lanjutkan meskipun gagal update campaign, transaksi sudah tersimpan
-      }
-
-      // 3. Update usersv2 jika user terdaftar
-      try {
-        if (data.user_email && data.user_email !== "anonim@example.com") {
-          console.log("Mencari user dengan email:", data.user_email);
-
-          const usersQuery = query(
-            collection(db, "usersv2"),
-            where("email", "==", data.user_email)
-          );
-          const userSnapshot = await getDocs(usersQuery);
-
-          if (!userSnapshot.empty) {
-            const userDoc = userSnapshot.docs[0];
-            const userData = userDoc.data();
-            const currentTotal = userData.totalDonation || 0;
-            const newTotalDonation = currentTotal + data.total_donasi;
-
-            await updateDoc(doc(db, "usersv2", userDoc.id), {
-              totalDonation: newTotalDonation,
-              lastDonationTimestamp: tanggal,
-              updatedAt: serverTimestamp(),
-            });
-
-            console.log("User berhasil diupdate:", {
-              email: data.user_email,
-              totalDonation: newTotalDonation,
-            });
-          } else {
-            console.log("User tidak ditemukan dengan email:", data.user_email);
-          }
-        }
-      } catch (userError: any) {
-        console.error("Error update user:", userError.message);
-        // Lanjutkan meskipun gagal update user
-      }
-
-      return NextResponse.json(
-        {
-          success: true,
-          message: "Donasi berhasil disimpan",
-          transactionId: transactionId,
-          data: transaction,
-          userUpdated:
-            data.user_email && data.user_email !== "anonim@example.com",
-        },
-        { status: 200 }
+      console.log("🔄 Mencari campaign...");
+      const campaignsRef = collection(db, "campaignsv2");
+      const campaignQuery = query(
+        campaignsRef,
+        where("id", "==", data.campaign_id)
       );
-    } catch (firestoreError: any) {
-      console.error("Firestore error:", firestoreError.message);
-      return NextResponse.json(
-        { error: "Gagal menyimpan ke database: " + firestoreError.message },
-        { status: 500 }
-      );
+      const campaignSnapshot = await getDocs(campaignQuery);
+
+      if (!campaignSnapshot.empty) {
+        const campaignDoc = campaignSnapshot.docs[0];
+        const campaignData = campaignDoc.data();
+
+        const currentTotalDonasi = campaignData.total_donasi || 0;
+        const currentTotalPohon = campaignData.total_pohon || 0;
+        const currentTotalDonatur = campaignData.total_donatur || 0;
+
+        const newTotalDonasi = currentTotalDonasi + data.total_donasi;
+        const newTotalPohon = currentTotalPohon + data.jumlah_pohon;
+        const newTotalDonatur = currentTotalDonatur + 1;
+
+        const targetDonasi = (campaignData.target_donasi || 0) * 15000;
+        const newProgress =
+          targetDonasi > 0
+            ? Math.round((newTotalDonasi / targetDonasi) * 100)
+            : 0;
+
+        await updateDoc(doc(db, "campaignsv2", campaignDoc.id), {
+          total_donasi: newTotalDonasi,
+          total_pohon: newTotalPohon,
+          total_donatur: newTotalDonatur,
+          progress_percentage: newProgress,
+          updated_at: serverTimestamp(),
+        });
+
+        console.log("✅ Campaign updated:", {
+          campaign_id: data.campaign_id,
+          total_donasi: newTotalDonasi,
+          total_pohon: newTotalPohon,
+          total_donatur: newTotalDonatur,
+        });
+      } else {
+        console.warn("⚠️ Campaign tidak ditemukan:", data.campaign_id);
+      }
+    } catch (campaignError: any) {
+      console.error("❌ Error update campaign:", campaignError.message);
+      // Jangan return error, lanjutkan karena transaksi sudah tersimpan
     }
-  } catch (error: any) {
-    console.error("API Error:", error.message);
+
+    // 3. Update user data di usersv2 (jika bukan anonim)
+    try {
+      if (data.user_email && data.user_email !== "anonim@example.com") {
+        console.log("👤 Mencari user dengan email:", data.user_email);
+
+        const usersRef = collection(db, "usersv2");
+        const userQuery = query(
+          usersRef,
+          where("email", "==", data.user_email)
+        );
+        const userSnapshot = await getDocs(userQuery);
+
+        if (!userSnapshot.empty) {
+          const userDoc = userSnapshot.docs[0];
+          const userData = userDoc.data();
+
+          // Hitung total yang baru
+          const currentTotalRupiah = userData.totalDonation || 0;
+          const newTotalRupiah = currentTotalRupiah + data.total_donasi;
+
+          const currentTotalPohon = userData.totalPohon || 0;
+          const newTotalPohon = currentTotalPohon + data.jumlah_pohon;
+
+          const updateData: any = {
+            totalDonation: newTotalRupiah,
+            totalPohon: newTotalPohon,
+            lastDonationTimestamp: tanggal,
+            updatedAt: serverTimestamp(),
+          };
+
+          // Jika ini donasi pertama, set firstDonationDate
+          if (!userData.firstDonationDate) {
+            updateData.firstDonationDate = tanggal;
+          }
+
+          await updateDoc(doc(db, "usersv2", userDoc.id), updateData);
+
+          console.log("✅ User updated:", {
+            email: data.user_email,
+            totalDonation: newTotalRupiah,
+            totalPohon: newTotalPohon,
+            userId: userDoc.id,
+          });
+        } else {
+          console.warn(
+            "⚠️ User tidak ditemukan dengan email:",
+            data.user_email
+          );
+
+          // Opsional: Buat user baru jika tidak ditemukan
+          // await addDoc(collection(db, "usersv2"), {
+          //   email: data.user_email,
+          //   name: data.user_name || "",
+          //   photo: data.user_photo || "",
+          //   totalDonation: data.total_donasi,
+          //   totalPohon: data.jumlah_pohon,
+          //   firstDonationDate: tanggal,
+          //   lastDonationTimestamp: tanggal,
+          //   createdAt: serverTimestamp(),
+          //   updatedAt: serverTimestamp()
+          // });
+        }
+      } else {
+        console.log("👤 Donasi anonim, skip update user");
+      }
+    } catch (userError: any) {
+      console.error("❌ Error update user:", userError.message);
+      // Lanjutkan karena transaksi utama sudah berhasil
+    }
+
+    // 4. Response sukses
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      {
+        success: true,
+        message: "Donasi berhasil diproses",
+        transactionId: transactionRef.id,
+        data: {
+          jumlah_pohon: data.jumlah_pohon,
+          total_donasi: data.total_donasi,
+          campaign_id: data.campaign_id,
+        },
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("❌ Error utama dalam proses donasi:", error);
+
+    return NextResponse.json(
+      {
+        error: "Gagal memproses donasi",
+        details: error.message,
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      },
       { status: 500 }
     );
   }
 }
 
-export async function GET() {
-  return NextResponse.json({
-    message: "Donation API endpoint",
-    usage: "POST /api/donate dengan JSON body",
-  });
+// Opsional: Tambahkan GET untuk debugging
+export async function GET(request: NextRequest) {
+  return NextResponse.json(
+    {
+      message: "API Donasi aktif",
+      method: "POST",
+      required_fields: [
+        "jumlah_pohon",
+        "total_donasi",
+        "campaign_id",
+        "user_email (opsional)",
+      ],
+    },
+    { status: 200 }
+  );
 }

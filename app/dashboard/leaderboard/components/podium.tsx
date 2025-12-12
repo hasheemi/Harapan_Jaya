@@ -24,7 +24,13 @@ function Podium({ item, index }: PodiumProps) {
           <span>{item.amount}</span>
         </div>
         <div
-          className={`${index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-500' : 'bg-orange-500'} w-full rounded-box p-4 ${heightClass} flex items-center justify-center`}
+          className={`${
+            index === 0
+              ? "bg-green-600"
+              : index === 1
+              ? "bg-green-500"
+              : "bg-green-400"
+          } w-full min-w-36 rounded-box p-4 ${heightClass} flex items-center justify-center`}
         >
           <span className="text-4xl font-bold text-white">{index + 1}</span>
         </div>
