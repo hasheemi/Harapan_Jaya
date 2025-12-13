@@ -68,8 +68,6 @@ export default function Page({ params }: PageProps) {
     }
   }, []);
 
-
-
   const fetchDeskripsi = async (deskripsiUrl: string) => {
     try {
       const response = await fetch(deskripsiUrl);
@@ -229,7 +227,6 @@ export default function Page({ params }: PageProps) {
     }
   }, [campaignData?.id]);
 
-
   // Format tanggal relatif
   const formatRelativeTime = (date: Date) => {
     const now = new Date();
@@ -369,7 +366,6 @@ export default function Page({ params }: PageProps) {
           progress_percentage: newProgress,
         });
 
-
         toast.success(
           `Donasi ${jumlahPohon} pohon (Rp ${totalDonasi.toLocaleString()}) berhasil!`,
           {
@@ -386,7 +382,8 @@ export default function Page({ params }: PageProps) {
         handleCloseModal();
       } else {
         toast.error(
-          "Terjadi kesalahan saat mengirim data: " + (result.error as Error).message,
+          "Terjadi kesalahan saat mengirim data: " +
+            (result.error as Error).message,
           {
             position: "bottom-right",
             autoClose: 5000,
@@ -478,7 +475,7 @@ export default function Page({ params }: PageProps) {
           />
           <TabSection
             campaignData={campaignData}
-            // deskripsiHtml={deskripsiHtml}
+            deskripsiHtml={deskripsiHtml}
             updates={updatesList}
           />
         </div>
@@ -636,10 +633,11 @@ export default function Page({ params }: PageProps) {
 
           {isAuthReady && (
             <div
-              className={`text-sm p-3 rounded-lg text-center mb-6 ${localData?.email
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-200 text-gray-700"
-                }`}
+              className={`text-sm p-3 rounded-lg text-center mb-6 ${
+                localData?.email
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-200 text-gray-700"
+              }`}
             >
               {localData?.email ? (
                 <>
@@ -797,10 +795,11 @@ export default function Page({ params }: PageProps) {
                 />
                 <button
                   onClick={handleCopyLink}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${isLinkCopied
-                    ? "bg-green-600 text-white"
-                    : "bg-green-100 text-green-700 hover:bg-green-200"
-                    }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    isLinkCopied
+                      ? "bg-green-600 text-white"
+                      : "bg-green-100 text-green-700 hover:bg-green-200"
+                  }`}
                 >
                   {isLinkCopied ? "✓ Tersalin" : "Salin"}
                 </button>

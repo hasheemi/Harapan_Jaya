@@ -28,10 +28,15 @@ interface CampaignData {
 
 interface TabSectionProps {
   campaignData: CampaignData;
-  updates?: Update[]; 
+  updates?: Update[];
+  deskripsiHtml: any;
 }
 
-export default function TabSection({ campaignData, updates = [] }: TabSectionProps) {
+export default function TabSection({
+  campaignData,
+  updates = [],
+  deskripsiHtml,
+}: TabSectionProps) {
   const [activeTab, setActiveTab] = useState<"desc" | "update">("desc");
 
   // Format tanggal
@@ -55,8 +60,9 @@ export default function TabSection({ campaignData, updates = [] }: TabSectionPro
 
     if (campaignData.jenis_pohon) {
       tags.push(
-        `🌱 ${campaignData.jenis_pohon.charAt(0).toUpperCase() +
-        campaignData.jenis_pohon.slice(1)
+        `🌱 ${
+          campaignData.jenis_pohon.charAt(0).toUpperCase() +
+          campaignData.jenis_pohon.slice(1)
         }`
       );
     }
@@ -73,11 +79,7 @@ export default function TabSection({ campaignData, updates = [] }: TabSectionPro
     return tags;
   };
 
-
-
   console.log(campaignData);
-
-
 
   return (
     <div className="px-6 sm:px-12">
@@ -89,20 +91,22 @@ export default function TabSection({ campaignData, updates = [] }: TabSectionPro
       <div className="flex space-x-4 border-b border-gray-300 mb-4">
         <button
           onClick={() => setActiveTab("desc")}
-          className={`pb-2 text-lg font-medium transition ${activeTab === "desc"
-            ? "border-b-2 border-green-600 text-white !bg-green-600"
-            : "text-gray-500 hover:text-green-600"
-            }`}
+          className={`pb-2 text-lg font-medium transition ${
+            activeTab === "desc"
+              ? "border-b-2 border-green-600 text-white !bg-green-600"
+              : "text-gray-500 hover:text-green-600"
+          }`}
         >
           Deskripsi
         </button>
 
         <button
           onClick={() => setActiveTab("update")}
-          className={`pb-2 text-lg font-medium transition ${activeTab === "update"
-            ? "border-b-2 border-green-600 text-white !bg-green-600"
-            : "text-gray-500 hover:text-green-600"
-            }`}
+          className={`pb-2 text-lg font-medium transition ${
+            activeTab === "update"
+              ? "border-b-2 border-green-600 text-white !bg-green-600"
+              : "text-gray-500 hover:text-green-600"
+          }`}
         >
           Update
         </button>
@@ -129,7 +133,7 @@ export default function TabSection({ campaignData, updates = [] }: TabSectionPro
             </div>
 
             {/* Deskripsi dari file .txt */}
-            {/* {deskripsiHtml ? (
+            {deskripsiHtml ? (
               <div dangerouslySetInnerHTML={{ __html: deskripsiHtml }} />
             ) : (
               <div className="space-y-4">
@@ -198,19 +202,23 @@ export default function TabSection({ campaignData, updates = [] }: TabSectionPro
                   </div>
                 </div>
               </div>
-            )} */}
+            )}
           </div>
         </div>
       ) : (
         <div className="space-y-4 w-full max-w-2xl">
-
-          {(!updates || updates.length === 0) ? (
+          {!updates || updates.length === 0 ? (
             <div className="text-center py-8 bg-gray-50 rounded-xl border border-gray-200">
-              <p className="text-gray-500">Belum ada update untuk kampanye ini.</p>
+              <p className="text-gray-500">
+                Belum ada update untuk kampanye ini.
+              </p>
             </div>
           ) : (
             updates
-              .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
+              .sort(
+                (a, b) =>
+                  new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime()
+              )
               .map((update, index) => (
                 <div
                   key={index}

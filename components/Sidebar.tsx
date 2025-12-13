@@ -77,9 +77,9 @@ export default function Sidebar() {
         <div className="flex flex-col h-full px-4">
           {/* Logo Area */}
           <div className="py-6 border-b border-gray-100 flex items-center justify-center w-full">
-            <h1 className="text-2xl font-bold text-leaf-700 items-center gap-2">
-              <i className="bx bxs-leaf"></i> Resapling
-            </h1>
+            <span className="self-center text-3xl font-semibold whitespace-nowrap text-leaf-900 relogo ml-0!">
+              Resapling
+            </span>
           </div>
 
           {/* Navigation */}
@@ -90,6 +90,7 @@ export default function Sidebar() {
                 return null;
               if (localData.isYayasan == "true" && item.name == "Upgrade")
                 return null;
+
               return (
                 <Link
                   key={item.href}

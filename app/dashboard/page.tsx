@@ -14,7 +14,9 @@ import { db } from "@/lib/firebase";
 
 export default function DashboardPage() {
   const [userDonations, setUserDonations] = useState<any[]>([]);
+  const [topUsers, setTopUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   // Ambil data user dari localStorage
   const [localData, setLocalData] = useState<any>(null);
@@ -70,6 +72,105 @@ export default function DashboardPage() {
     fetchUserDonations();
   }, [localData?.email]);
 
+  // Ambil 3 user teratas dari Firebase
+  useEffect(() => {
+    const fetchTopUsers = async () => {
+      setIsLoading(true);
+      try {
+        // 1. Ambil data user yang sedang login dari localStorage
+        const storedUser = localStorage.getItem("user");
+        let currentUserData = null;
+
+        if (storedUser) {
+          try {
+            currentUserData = JSON.parse(storedUser);
+            // Set rank user dari localStorage jika ada
+            setUserRank(currentUserData.rank || null);
+          } catch (err) {
+            console.warn("Error parsing user data:", err);
+          }
+        }
+
+        // 2. Ambil top 3 users dari Firebase berdasarkan totalPohon
+        const usersRef = collection(db, "usersv2");
+        const q = query(usersRef, orderBy("totalPohon", "desc"), limit(3));
+
+        const querySnapshot = await getDocs(q);
+        const usersList: any = [];
+
+        let rankCounter = 1;
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const totalPohon = data.totalPohon || 0;
+
+          if (totalPohon > 0) {
+            usersList.push({
+              id: doc.id,
+              name: data.name || "Anonymous",
+              photo:
+                data.photo ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  data.name || "Anonymous"
+                )}&background=random&color=fff`,
+              totalPohon: totalPohon,
+              rank: rankCounter,
+            });
+            rankCounter++;
+          }
+        });
+
+        setTopUsers(usersList);
+
+        // 3. Jika user saat ini tidak ada di top 3, ambil rank-nya
+        if (currentUserData?.email && !userRank) {
+          const userRankQuery = query(
+            usersRef,
+            where("email", "==", currentUserData.email)
+          );
+          const userSnapshot = await getDocs(userRankQuery);
+
+          if (!userSnapshot.empty) {
+            const userData = userSnapshot.docs[0].data();
+            setUserRank(userData.rank || null);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        // Fallback data jika error
+        setTopUsers([
+          {
+            id: "1",
+            name: "Green Hero",
+            photo:
+              "https://ui-avatars.com/api/?name=Green+Hero&background=random&color=fff",
+            totalPohon: 1250,
+            rank: 1,
+          },
+          {
+            id: "2",
+            name: "Eco Champion",
+            photo:
+              "https://ui-avatars.com/api/?name=Eco+Champion&background=random&color=fff",
+            totalPohon: 980,
+            rank: 2,
+          },
+          {
+            id: "3",
+            name: "Nature Saver",
+            photo:
+              "https://ui-avatars.com/api/?name=Nature+Saver&background=random&color=fff",
+            totalPohon: 850,
+            rank: 3,
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTopUsers();
+  }, []);
+
   function formatDate(isoString: any) {
     if (!isoString) return "";
     const d = new Date(isoString);
@@ -122,21 +223,19 @@ export default function DashboardPage() {
     name: "User",
     email: "user@example.com",
     joinDate: "November 2023",
-    avatar:
-      "https://ui-avatars.com/api/?name=User&background=6fbf68&color=fff",
+    avatar: "https://ui-avatars.com/api/?name=User&background=6fbf68&color=fff",
     totalTrees: 145,
     rank: 12,
     co2Reduced: "3,625 kg",
     pollutionReduced: "12%",
   };
 
-  // Hitung total pohon dari data donasi
   const totalTreesFromDonations = userDonations.reduce((sum, donation) => {
     return sum + (donation.jumlah_pohon || 0);
   }, 0);
 
-  // Hitung CO2 yang direduksi 
-  const calculatedCO2 = (totalTreesFromDonations * 25).toLocaleString("id-ID");
+  // Hitung CO2 yang direduksi
+  const calculatedCO2 = (totalTreesFromDonations * 23).toLocaleString("id-ID");
 
   return (
     <div className="space-y-6">
@@ -207,7 +306,7 @@ export default function DashboardPage() {
               </div>
               <div className="text-center">
                 <h3 className="text-gray-500 text-sm font-medium">
-                  CO2 Reduced
+                  CO2 Reduced / Tahun
                 </h3>
                 <p className="text-3xl font-bold text-gray-800">
                   {userDonations.length > 0
@@ -354,17 +453,26 @@ export default function DashboardPage() {
 
         {/* Sidebar Area - 1 Column */}
         <div className="space-y-6">
-          {/* Quick Action / Promo */}
           <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-            <h3 className="font-bold text-blue-900 mb-2">Jadilah Anggota</h3>
+            <h3 className="font-bold text-blue-900 mb-2">
+              {localData?.isYayasan
+                ? "Buat Kampanye Baru"
+                : "Jadilah Penggerak"}
+            </h3>
             <p className="text-sm text-blue-700 mb-4">
-              Buat campaign dan berikan donasi pohon untuk lingkungan.
+              {localData?.isYayasan
+                ? "Mulai kampanye penanaman pohon Anda dan ajak masyarakat untuk berpartisipasi."
+                : "Buat komunitas penanaman pohon di daerah Anda dan ajak teman-teman untuk bergabung."}
             </p>
             <Link
-              href="/dashboard/upgrade"
+              href={
+                localData?.isYayasan
+                  ? "/dashboard/admin/add"
+                  : "/dashboard/upgrade"
+              }
               className="block w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-lg text-sm font-medium transition-colors"
             >
-              Daftar Sekarang
+              {localData?.isYayasan ? "Buat Kampanye" : "Daftar Sekarang"}
             </Link>
           </div>
           {/* Leaderboard Preview */}
@@ -381,32 +489,46 @@ export default function DashboardPage() {
             <div className="text-center mb-6 p-4 bg-leaf-50 rounded-lg border border-leaf-100">
               <p className="text-sm text-gray-600">Peringkatmu </p>
               <p className="text-4xl font-bold text-black">
-                #{fallbackUser.rank}
+                #{localData?.rank != null ? localData.rank : "-"}
               </p>
-              <p className="text-xs text-gray-500 mt-1">Top 15 Bulan ini!</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {localData?.rank != null
+                  ? "Pencapaian yang bagus!"
+                  : "Mulai Berdonasi!"}
+              </p>
             </div>
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between">
+              {topUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center gap-3">
                     <span
                       className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
-                        i === 1
+                        user.rank === 1
                           ? "bg-yellow-100 text-yellow-700"
-                          : i === 2
+                          : user.rank === 2
                           ? "bg-gray-100 text-gray-700"
                           : "bg-orange-100 text-orange-700"
                       }`}
                     >
-                      {i}
+                      {user.rank}
                     </span>
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                    <div className="w-8 h-8 relative">
+                      <Image
+                        src={user.photo}
+                        alt={user.name}
+                        fill
+                        className="rounded-full object-cover"
+                      />
+                    </div>
                     <span className="text-sm font-medium text-gray-700">
-                      Hamba Allah
+                      {user.name}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-gray-800">
-                    200 🌲
+                    {user.totalPohon.toLocaleString()} 🌲
                   </span>
                 </div>
               ))}
