@@ -3,6 +3,9 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
+import { collection, query, where, getDocs, updateDoc, arrayUnion } from "firebase/firestore";
+import { orderBy, limit } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import "react-quill-new/dist/quill.snow.css";
 
 // Dynamic import untuk ReactQuill
@@ -86,21 +89,26 @@ export default function UpdateCampaignPage() {
         formData.append("image", imageFile);
       }
 
-      // Log data (sesuai permintaan)
-      console.log("=== DATA YANG AKAN DIKIRIM ===");
-      console.log("Campaign ID:", campaignId);
-      console.log("Judul:", judul);
-      console.log("Deskripsi:", deskripsi);
-      console.log("User Email:", userData.email);
-      console.log("User Name:", userData.yayasanName || userData.name);
-      console.log(
-        "Image File:",
-        imageFile ? imageFile.name : "Tidak ada gambar"
-      );
-      console.log("=== END LOG ===");
+      // Console log
+      // console.log("=== FormData Contents ===");
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
+      // console.log("=== END FormData Contents ===");
 
-      // Simulasi loading
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Call API
+      const response = await fetch("/api/campaign/update", {
+        method: "POST",
+        body: formData,
+        // When sending FormData, the 'Content-Type' header is automatically set to 'multipart/form-data'
+        // by the browser, so we should NOT set it manually here.
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Gagal membuat update");
+      }
 
       // Success state
       setSuccess(true);
@@ -114,7 +122,7 @@ export default function UpdateCampaignPage() {
         setSuccess(false);
 
         // Optional: Redirect ke halaman campaign detail
-        // router.push(`/dashboard/campaigns/${campaignId}`);
+        router.push(`/dashboard/admin/${campaignId}`);
       }, 2000);
     } catch (error: any) {
       console.error("Error creating update:", error);
@@ -160,10 +168,6 @@ export default function UpdateCampaignPage() {
               <h3 className="text-sm font-medium text-green-800">
                 Update berhasil disimpan!
               </h3>
-              <p className="text-sm text-green-700 mt-1">
-                Data telah dicatat di console log. API call dapat diaktifkan
-                nanti.
-              </p>
             </div>
           </div>
         </div>

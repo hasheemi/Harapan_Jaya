@@ -1,9 +1,43 @@
 "use client";
 
 import DonationCard from "@/components/DonationCard";
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+interface Campaign {
+  id: string;
+  campaignId: string;
+  judul: string;
+  status: string;
+  target_donasi: number;
+  total_donasi: number;
+  total_pohon: number;
+  total_donatur: number;
+  progress_percentage: number;
+  raised: number;
+  target: number;
+  trees: number;
+  poster_url: string;
+  lokasi: string;
+  jenis_pohon: string;
+  nama_yayasan?: string; // Tambahkan field ini jika ada di data
+  created_at: Date | null;
+  updated_at: Date | null;
+}
+
+interface DonationCardData {
+  image: string;
+  title: string;
+  description: string;
+  current: number;
+  target: number;
+  progress: number;
+  deadline: string;
+  nama_yayasan?: string;
+  lokasi?: string;
+}
 
 export default function CampaignUpdatesPage() {
   // State
@@ -11,57 +45,137 @@ export default function CampaignUpdatesPage() {
   const [medan, setMedan] = useState("");
   const [lokasi, setLokasi] = useState("");
   const [mitra, setMitra] = useState("");
-  // Mock Updates Data
-  const updates = [
-    {
-      id: 1,
-      campaign: "Reforest Borneo",
-      mitra: "Green Earth Foundation",
-      date: "2025-11-28",
-      description:
-        "Kami telah berhasil menanam 5.000 bibit di area yang ditentukan. Terima kasih kepada semua donatur atas dukungan Anda! Masyarakat setempat sangat membantu dalam membersihkan lahan dan menyiapkan tanah.",
-      image:
-        "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
-      medan: "hutan",
-      location: "Borneo",
-      current: 240210,
-      target: 500000,
-      progress: 49,
-      deadline: "6 hari lagi",
-    },
-    {
-      id: 2,
-      campaign: "Urban Green Jakarta",
-      mitra: "EcoWarriors Jakarta",
-      date: "2025-11-20",
-      description:
-        "Tim kami saat ini sedang berada di lokasi mempersiapkan untuk acara penanaman yang akan datang minggu depan. Kami membersihkan sampah dan menandai tempat untuk pohon baru.",
-      image:
-        "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?auto=format&fit=crop&q=80&w=800",
-      medan: "perkotaan",
-      location: "Borneo",
-      current: 147783,
-      target: 600000,
-      progress: 23,
-      deadline: "2 Minggu lagi",
-    },
-    {
-      id: 3,
-      campaign: "Selamatkan Hutan Sumatra",
-      mitra: "Wildlife Protection",
-      date: "2025-11-15",
-      description:
-        "Kami senang mengumumkan sebuah kerjasama baru dengan departemen hutan setempat untuk memperluas area konservasi. Ini akan memungkinkan kami untuk menanam 2.000 pohon tambahan setiap tahun.",
-      image:
-        "https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      medan: "hutan",
-      location: "Borneo",
-      current: 21023,
-      target: 100000,
-      progress: 21,
-      deadline: "1 Bulan lagi",
-    },
-  ];
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+    // Fetch campaigns dari Firebase tanpa filter email
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      setIsLoading(true);
+      try {
+        const campaignsRef = collection(db, "campaignsv2");
+        const querySnapshot = await getDocs(campaignsRef);
+
+        const campaignsData = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+
+          // Calculate financial values
+          const targetDonasi = data.target_donasi || 0;
+          const totalPohon = data.total_pohon || 0;
+          const totalDonasi = data.total_donasi || 0;
+
+          return {
+            // Document ID untuk linking
+            id: doc.id,
+
+            // Campaign data dari schema
+            campaignId: data.id,
+            judul: data.judul || "Untitled Campaign",
+            status: data.status || "draft",
+            target_donasi: targetDonasi,
+            total_donasi: totalDonasi,
+            total_pohon: totalPohon,
+            total_donatur: data.total_donatur || 0,
+            progress_percentage: data.progress_percentage || 0,
+            tanggal_mulai: data.tanggal_mulai?.toDate?.() || null,
+            tanggal_berakhir: data.tanggal_berakhir?.toDate?.() || null,
+
+            // Calculated values untuk display
+            raised:  totalPohon ,
+            target: targetDonasi ,
+            trees: totalPohon,
+
+            // Field lainnya
+            poster_url: data.poster_url || "",
+            lokasi: data.lokasi || "",
+            jenis_pohon: data.jenis_pohon || "",
+            nama_yayasan: data.created_by_yayasan || data.created_by_name || "", // Ambil nama yayasan jika ada
+            created_at: data.created_at?.toDate?.() || null,
+            updated_at: data.updated_at?.toDate?.() || null,
+            medan: data.medan || "",
+
+          };
+        });
+
+        setCampaigns(campaignsData);
+      } catch (error) {
+        console.error("Error fetching campaigns:", error);
+        setCampaigns([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCampaigns();
+  }, []);
+  const donationCards: DonationCardData[] = campaigns.map((campaign) => {
+    // Format judul untuk title (ambil 2-3 kata pertama jika terlalu panjang)
+    const titleWords = campaign.judul.split(" ");
+    const shortTitle =
+      titleWords.length > 3
+        ? `${titleWords.slice(0, 3).join(" ")}...`
+        : campaign.judul;
+
+    // Buat deskripsi dari kombinasi judul dan lokasi
+    const description = `${campaign.judul}`;
+
+    // Hitung progress percentage
+    const progress =
+      campaign.target > 0
+        ? Math.round((campaign.raised / campaign.target) * 100)
+        : 0;
+
+    // Generate deadline dummy (atau gunakan data dari firebase jika ada)
+    let deadline= "Telah Berakhir";
+    if (campaign.tanggal_berakhir) {
+      const endDate = campaign.tanggal_berakhir.toDate();
+      const today = new Date();
+      const diffTime = endDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0) {
+        deadline = `${diffDays} hari lagi`;
+      }
+    }
+
+    console.log(campaign)
+
+    return {
+      image: campaign.poster_url || "/assets/img/item/gemarsorong.jpg",
+      title: campaign.nama_yayasan || shortTitle,
+      description: description,
+      current: campaign.raised,
+      target: campaign.target,
+      progress: Math.min(progress, 100), // Maksimal 100%
+      deadline: deadline,
+      nama_yayasan: campaign.nama_yayasan,
+      lokasi: campaign.lokasi,
+      jenis_pohon: campaign.jenis_pohon,
+      medan: campaign.medan,
+    };
+  });
+
+    const handleApply = () => {
+    console.log({
+      sort,
+      medan,
+      lokasi,
+      mitra,
+    });
+  };
+
+
+  useEffect(() => {
+    // Initialize AOS
+    if (typeof window !== "undefined") {
+      const AOS = require("aos");
+      AOS.init({
+        duration: 1000,
+        once: true,
+      });
+    }
+  }, []);
 
   return (
     <div className="space-y-6 w-full">
@@ -147,24 +261,36 @@ export default function CampaignUpdatesPage() {
       </div>
 
       {/* Filter End */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {updates.map((update) => (
-          <Link href={`/dashboard/campaigns/${update.id}`} key={update.id}>
-            <DonationCard
-              image={update.image}
-              title={update.campaign}
-              mitra={update.mitra}
-              medan={update.medan}
-              location={update.location}
-              description={update.description}
-              current={update.current}
-              target={update.target}
-              progress={update.progress}
-              deadline={update.deadline}
-            />
-          </Link>
-        ))}
-      </div>
+      <section className="donation px-6 sm:px-12 mt-4 pb-20">
+        {donationCards.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-leaf-700">
+              Tidak ada kampanye donasi yang tersedia.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-12 mt-10 mx-auto justify-between">
+            {donationCards.map((card, index) => (
+              <Link
+                href={`/campaign/${campaigns[index]?.campaignId || "detail"}`}
+                key={campaigns[index]?.campaignId || index}
+              >
+                <DonationCard
+                  image={card.image}
+                  title={card.title}
+                  description={card.description}
+                  current={card.current}
+                  target={card.target}
+                  progress={card.progress}
+                  deadline={card.deadline}
+                  location={card.lokasi}
+                  medan={card.medan}
+                />
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

@@ -31,6 +31,7 @@ interface CampaignData {
   tanggal_planning: string;
   created_at: Date | null;
   updated_at: Date | null;
+  updates: any[];
 }
 
 interface PageProps {
@@ -51,6 +52,7 @@ export default function Page({ params }: PageProps) {
   const [deskripsiHtml, setDeskripsiHtml] = useState<string>("");
   const [daysLeft, setDaysLeft] = useState<number>(0);
   const [recentDonations, setRecentDonations] = useState<any[]>([]);
+  const [updatesList, setUpdatesList] = useState<any[]>([]);
 
   // Ambil data user dari localStorage
   useEffect(() => {
@@ -65,6 +67,8 @@ export default function Page({ params }: PageProps) {
       setIsAuthReady(true);
     }
   }, []);
+
+
 
   const fetchDeskripsi = async (deskripsiUrl: string) => {
     try {
@@ -118,6 +122,25 @@ export default function Page({ params }: PageProps) {
           const doc = querySnapshot.docs[0];
           const data = doc.data();
 
+          try {
+            const updatesRef = collection(db, "updatesv2");
+            console.log("Fetching updates for campaign ID:", id);
+            const qUpdates = query(
+              updatesRef,
+              where("campaign_id", "==", id)
+              // orderBy("created_at", "desc") // masalah index
+            );
+            const updatesSnapshot = await getDocs(qUpdates);
+            console.log("Updates found:", updatesSnapshot.size);
+            const fetchedUpdates = updatesSnapshot.docs.map((uDoc) => ({
+              id: uDoc.id,
+              ...uDoc.data(),
+            }));
+            setUpdatesList(fetchedUpdates);
+          } catch (err) {
+            console.error("Error fetching updates:", err);
+          }
+
           const campaign: CampaignData = {
             id: data.id,
             judul: data.judul || "Untitled Campaign",
@@ -139,6 +162,7 @@ export default function Page({ params }: PageProps) {
             tanggal_planning: data.tanggal_planning || "",
             created_at: data.created_at?.toDate?.() || null,
             updated_at: data.updated_at?.toDate?.() || null,
+            updates: data.updates || [],
           };
 
           setCampaignData(campaign);
@@ -204,6 +228,7 @@ export default function Page({ params }: PageProps) {
       fetchRecentDonations();
     }
   }, [campaignData?.id]);
+
 
   // Format tanggal relatif
   const formatRelativeTime = (date: Date) => {
@@ -344,9 +369,9 @@ export default function Page({ params }: PageProps) {
           progress_percentage: newProgress,
         });
 
-      
-         toast.success(
-           `Donasi ${jumlahPohon} pohon (Rp ${totalDonasi.toLocaleString()}) berhasil!`,
+
+        toast.success(
+          `Donasi ${jumlahPohon} pohon (Rp ${totalDonasi.toLocaleString()}) berhasil!`,
           {
             position: "bottom-right",
             autoClose: 5000,
@@ -361,18 +386,18 @@ export default function Page({ params }: PageProps) {
         handleCloseModal();
       } else {
         toast.error(
-        "Terjadi kesalahan saat mengirim data: " + (result.error as Error).message,
-        {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        }
-      );
+          "Terjadi kesalahan saat mengirim data: " + (result.error as Error).message,
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          }
+        );
         throw new Error(result.error || "Gagal melakukan donasi");
       }
     } catch (error: any) {
@@ -423,6 +448,9 @@ export default function Page({ params }: PageProps) {
     });
   };
 
+  console.log(`Campaign Data:`, campaignData);
+  console.log(`Update List:`, updatesList);
+
   return (
     <main className="bg-leaf-50">
       <Navbar />
@@ -450,7 +478,8 @@ export default function Page({ params }: PageProps) {
           />
           <TabSection
             campaignData={campaignData}
-            deskripsiHtml={deskripsiHtml}
+            // deskripsiHtml={deskripsiHtml}
+            updates={updatesList}
           />
         </div>
 
@@ -608,8 +637,8 @@ export default function Page({ params }: PageProps) {
           {isAuthReady && (
             <div
               className={`text-sm p-3 rounded-lg text-center mb-6 ${localData?.email
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-200 text-gray-700"
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-200 text-gray-700"
                 }`}
             >
               {localData?.email ? (
@@ -769,8 +798,8 @@ export default function Page({ params }: PageProps) {
                 <button
                   onClick={handleCopyLink}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${isLinkCopied
-                      ? "bg-green-600 text-white"
-                      : "bg-green-100 text-green-700 hover:bg-green-200"
+                    ? "bg-green-600 text-white"
+                    : "bg-green-100 text-green-700 hover:bg-green-200"
                     }`}
                 >
                   {isLinkCopied ? "✓ Tersalin" : "Salin"}

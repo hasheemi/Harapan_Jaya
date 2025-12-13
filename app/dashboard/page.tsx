@@ -119,11 +119,11 @@ export default function DashboardPage() {
 
   // Hardcoded fallback data jika tidak ada data dari Firebase
   const fallbackUser = {
-    name: "Ridwan Adisurya",
-    email: "ridwan@example.com",
+    name: "User",
+    email: "user@example.com",
     joinDate: "November 2023",
     avatar:
-      "https://ui-avatars.com/api/?name=Ridwan+Adisurya&background=6fbf68&color=fff",
+      "https://ui-avatars.com/api/?name=User&background=6fbf68&color=fff",
     totalTrees: 145,
     rank: 12,
     co2Reduced: "3,625 kg",

@@ -72,20 +72,11 @@ export default function UpgradePage() {
     const file = e.target.files?.[0];
     const fieldName = e.target.name;
 
-    console.log(`🔄 File change for ${fieldName}:`, file);
-
     if (file) {
       setFormData((prev) => ({
         ...prev,
         [fieldName]: file,
       }));
-      console.log(
-        `✅ File set in formData: ${fieldName}`,
-        file.name,
-        file.size
-      );
-    } else {
-      console.log(`❌ No file selected for ${fieldName}`);
     }
   };
 
@@ -94,7 +85,6 @@ export default function UpgradePage() {
     setIsLoading(true);
 
     try {
-      console.log("=== DEBUG FORM DATA BEFORE SUBMIT ===");
 
       const submitFormData = new FormData();
       submitFormData.append("myemail", localData.email);
@@ -112,22 +102,14 @@ export default function UpgradePage() {
         ) {
           // Type assertion
           const file = value as File;
-          console.log(`📁 Adding FILE: ${key}`, file.name, file.size);
           submitFormData.append(key, file);
           fileCount++;
         } else if (value !== null && value !== undefined) {
-          console.log(`📝 Adding TEXT: ${key}`, value);
           submitFormData.append(key, value.toString());
           textCount++;
         }
       });
 
-      console.log(
-        `=== SUMMARY: ${textCount} text fields, ${fileCount} files ===`
-      );
-
-      // Debug FormData contents
-      console.log("=== FORM DATA CONTENTS ===");
       for (let [key, value] of submitFormData.entries()) {
         console.log(
           `${key}:`,

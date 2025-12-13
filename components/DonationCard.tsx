@@ -10,7 +10,6 @@ interface DonationCardProps {
   progress: number;
   deadline: string;
   location: string;
-  mitra: string;
   medan: string;
 }
 
@@ -22,7 +21,6 @@ export default function DonationCard({
   target,
   progress,
   deadline,
-  mitra,
   medan,
   location,
 }: DonationCardProps) {
@@ -43,8 +41,6 @@ export default function DonationCard({
           <div>
             <div className="flex md:flex-row flex-col gap-2 md:items-center mt-2 text-sm text-gray-500">
               <span className="flex items-center gap-1"><i className="bx bx-map"></i> {location}</span>
-              <span className="flex items-center gap-1"><i className="bx bx-buildings"></i>
-                {mitra}</span>
               <span className="flex items-center gap-1"><i className="bx bx-landscape"></i> {medan}</span>
             </div>
           </div>

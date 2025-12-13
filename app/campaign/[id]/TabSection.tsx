@@ -1,6 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
+
+interface Update {
+  judul: string;
+  deskripsi: string;
+  tanggal: string;
+  author: string;
+  created_at: string;
+  image_url?: string;
+  campaign_id?: string;
+}
 
 interface CampaignData {
   id: string;
@@ -12,17 +23,15 @@ interface CampaignData {
   tanggal_mulai: string;
   tanggal_berakhir: string;
   created_by_yayasan: string;
+  updates?: Update[];
 }
 
 interface TabSectionProps {
   campaignData: CampaignData;
-  deskripsiHtml: string;
+  updates?: Update[]; 
 }
 
-export default function TabSection({
-  campaignData,
-  deskripsiHtml,
-}: TabSectionProps) {
+export default function TabSection({ campaignData, updates = [] }: TabSectionProps) {
   const [activeTab, setActiveTab] = useState<"desc" | "update">("desc");
 
   // Format tanggal
@@ -46,9 +55,8 @@ export default function TabSection({
 
     if (campaignData.jenis_pohon) {
       tags.push(
-        `🌱 ${
-          campaignData.jenis_pohon.charAt(0).toUpperCase() +
-          campaignData.jenis_pohon.slice(1)
+        `🌱 ${campaignData.jenis_pohon.charAt(0).toUpperCase() +
+        campaignData.jenis_pohon.slice(1)
         }`
       );
     }
@@ -57,45 +65,19 @@ export default function TabSection({
       const medanMap: Record<string, string> = {
         hutan: "🏞️ Hutan",
         pesisir: "🏝️ Pesisir",
-        perkotaan: "🏙️ Perkotaan",
         lahan_kritis: "⚠️ Lahan Kritis",
       };
-      tags.push(medanMap[campaignData.medan] || `📌 ${campaignData.medan}`);
+      tags.push(medanMap[campaignData.medan] || campaignData.medan);
     }
 
     return tags;
   };
 
-  // Generate sample updates based on campaign data
-  const generateUpdates = () => {
-    const updates = [];
-    const tags = getTags();
 
-    if (campaignData.tanggal_mulai) {
-      updates.push({
-        date: formatDate(campaignData.tanggal_mulai),
-        title: "Kampanye Resmi Dimulai",
-        description: `Program "${campaignData.judul}" secara resmi diluncurkan.`,
-        image: campaignData.poster_url,
-        progress: 0,
-        type: "launch",
-      });
-    }
 
-    updates.push({
-      date: formatDate(campaignData.tanggal_berakhir),
-      title: "Target Penanaman",
-      description: `Target penanaman ${campaignData.judul} di ${campaignData.lokasi}.`,
-      image:
-        "https://i.pinimg.com/736x/4c/df/85/4cdf85a2453a742b76bbd808e9d97b67.jpg",
-      progress: 50,
-      type: "target",
-    });
+  console.log(campaignData);
 
-    return updates;
-  };
 
-  const updates = generateUpdates();
 
   return (
     <div className="px-6 sm:px-12">
@@ -107,22 +89,20 @@ export default function TabSection({
       <div className="flex space-x-4 border-b border-gray-300 mb-4">
         <button
           onClick={() => setActiveTab("desc")}
-          className={`pb-2 text-lg font-medium transition ${
-            activeTab === "desc"
-              ? "border-b-2 border-green-600 text-white !bg-green-600"
-              : "text-gray-500 hover:text-green-600"
-          }`}
+          className={`pb-2 text-lg font-medium transition ${activeTab === "desc"
+            ? "border-b-2 border-green-600 text-white !bg-green-600"
+            : "text-gray-500 hover:text-green-600"
+            }`}
         >
           Deskripsi
         </button>
 
         <button
           onClick={() => setActiveTab("update")}
-          className={`pb-2 text-lg font-medium transition ${
-            activeTab === "update"
-              ? "border-b-2 border-green-600 text-white !bg-green-600"
-              : "text-gray-500 hover:text-green-600"
-          }`}
+          className={`pb-2 text-lg font-medium transition ${activeTab === "update"
+            ? "border-b-2 border-green-600 text-white !bg-green-600"
+            : "text-gray-500 hover:text-green-600"
+            }`}
         >
           Update
         </button>
@@ -149,7 +129,7 @@ export default function TabSection({
             </div>
 
             {/* Deskripsi dari file .txt */}
-            {deskripsiHtml ? (
+            {/* {deskripsiHtml ? (
               <div dangerouslySetInnerHTML={{ __html: deskripsiHtml }} />
             ) : (
               <div className="space-y-4">
@@ -218,65 +198,59 @@ export default function TabSection({
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         </div>
       ) : (
         <div className="space-y-4 w-full max-w-2xl">
-          {updates.map((update, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-lg shadow-green-100/50 border border-green-50 p-4 hover:shadow-green-200/50 transition-all duration-300"
-            >
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">
-                    {update.type === "launch" ? "🚀" : "💰"}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-emerald-600 font-medium">
-                    📅 {update.date}
-                  </p>
-                  <p className="text-gray-800 mt-1 leading-relaxed font-semibold">
-                    {update.title}
-                  </p>
-                  <p className="text-gray-600 mt-1 text-sm">
-                    {update.description}
-                  </p>
 
-                  {update.image && (
-                    <div className="mt-3 rounded-lg overflow-hidden border border-gray-100">
-                      <img
-                        src={update.image}
-                        alt={update.title}
-                        className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-
-                  {update.progress > 0 && (
-                    <div className="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-gray-700">
-                          Progress Donasi
-                        </span>
-                        <span className="text-sm font-bold text-emerald-600">
-                          {update.progress}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full"
-                          style={{ width: `${update.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+          {(!updates || updates.length === 0) ? (
+            <div className="text-center py-8 bg-gray-50 rounded-xl border border-gray-200">
+              <p className="text-gray-500">Belum ada update untuk kampanye ini.</p>
             </div>
-          ))}
+          ) : (
+            updates
+              .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
+              .map((update, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl shadow-lg shadow-green-100/50 border border-green-50 p-4 hover:shadow-green-200/50 transition-all duration-300"
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm">
+                        <i className="bx bxs-bell"></i>
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-emerald-600 font-medium">
+                        📅 {formatDate(update.tanggal)}
+                      </p>
+                      <p className="text-gray-800 mt-1 leading-relaxed font-semibold">
+                        {update.judul}
+                      </p>
+                      {update.image_url && (
+                        <Image
+                          src={update.image_url}
+                          alt={update.judul}
+                          width={300}
+                          height={300}
+                          className="mt-2 rounded-lg object-cover"
+                        />
+                      )}
+                      <div
+                        className="text-gray-600 mt-1 text-sm prose max-w-none"
+                        dangerouslySetInnerHTML={{ __html: update.deskripsi }}
+                      />
+
+                      <p className="text-xs text-gray-400 mt-2">
+                        Diposting oleh: {update.author}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+          )}
         </div>
       )}
     </div>

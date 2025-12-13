@@ -70,6 +70,20 @@ export default function AddCampaignPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  // Check authentication
+  // Get user data from localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
+  }, []);
 
   // Check authentication
   useEffect(() => {
@@ -98,7 +112,7 @@ export default function AddCampaignPage() {
       setLainnyaValue("");
     }
   };
-  const localData = JSON.parse(localStorage.getItem("user") ?? "");
+
   // Handle file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -179,9 +193,9 @@ export default function AddCampaignPage() {
         formData.append("file", posterFile); // Field name HARUS 'file'
       }
       // userId
-      formData.append("userId", localData.name);
-      formData.append("userEmail", localData.email);
-      formData.append("userName", localData.yayasanName);
+      formData.append("userId", user?.name || "");
+      formData.append("userEmail", user?.email || "");
+      formData.append("userName", user?.yayasanName || "");
       // Send to API
       const response = await fetch("/api/campaign/add", {
         method: "POST",

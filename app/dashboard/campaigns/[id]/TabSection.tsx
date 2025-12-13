@@ -15,22 +15,20 @@ export default function TabSection() {
       <div className="flex  space-x-4 border-b border-gray-300 mb-4">
         <button
           onClick={() => setActiveTab("desc")}
-          className={`pb-2 text-lg font-medium transition ${
-            activeTab === "desc"
+          className={`pb-2 text-lg font-medium transition ${activeTab === "desc"
               ? "border-b-2 border-green-600 text-green-700"
               : "text-gray-500 hover:text-green-600"
-          }`}
+            }`}
         >
           Deskripsi
         </button>
 
         <button
           onClick={() => setActiveTab("update")}
-          className={`pb-2 text-lg font-medium transition ${
-            activeTab === "update"
+          className={`pb-2 text-lg font-medium transition ${activeTab === "update"
               ? "border-b-2 border-green-600 text-green-700"
               : "text-black-500 hover:text-green-600"
-          }`}
+            }`}
         >
           Update
         </button>

@@ -38,6 +38,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: "bx-grid-alt" },
+    { name: "Mybibit", href: "/dashboard/history", icon: "bxs-leaf" },
     { name: "Leaderboard", href: "/dashboard/leaderboard", icon: "bx-trophy" },
     { name: "Campaigns", href: "/dashboard/campaigns", icon: "bx-news" },
     { name: "Upgrade", href: "/dashboard/upgrade", icon: "bx-up-arrow-circle" },

@@ -83,6 +83,8 @@ export default function Campaign() {
             total_pohon: totalPohon,
             total_donatur: data.total_donatur || 0,
             progress_percentage: data.progress_percentage || 0,
+            tanggal_mulai: data.tanggal_mulai?.toDate?.() || null,
+            tanggal_selesai: data.tanggal_selesai?.toDate?.() || null,
 
             // Calculated values untuk display
             raised:  totalPohon ,
@@ -96,6 +98,8 @@ export default function Campaign() {
             nama_yayasan: data.created_by_yayasan || data.created_by_name || "", // Ambil nama yayasan jika ada
             created_at: data.created_at?.toDate?.() || null,
             updated_at: data.updated_at?.toDate?.() || null,
+            medan: data.medan || "",
+
           };
         });
 
@@ -130,14 +134,17 @@ export default function Campaign() {
         : 0;
 
     // Generate deadline dummy (atau gunakan data dari firebase jika ada)
-    const deadlines = [
-      "6 hari lagi",
-      "2 Minggu lagi",
-      "1 Bulan lagi",
-      "3 Bulan lagi",
-    ];
-    const randomDeadline =
-      deadlines[Math.floor(Math.random() * deadlines.length)];
+    let deadline= "Telah Berakhir";
+    if (campaign.selesai) {
+      const endDate = campaign.selesai.toDate();
+      const today = new Date();
+      const diffTime = endDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0) {
+        deadline = `${diffDays} hari lagi`;
+      }
+    }
 
     return {
       image: campaign.poster_url || "/assets/img/item/gemarsorong.jpg",
@@ -146,9 +153,11 @@ export default function Campaign() {
       current: campaign.raised,
       target: campaign.target,
       progress: Math.min(progress, 100), // Maksimal 100%
-      deadline: randomDeadline,
+      deadline: deadline,
       nama_yayasan: campaign.nama_yayasan,
       lokasi: campaign.lokasi,
+      jenis_pohon: campaign.jenis_pohon,
+      medan: campaign.medan,
     };
   });
 
@@ -197,7 +206,7 @@ export default function Campaign() {
         title="Donasi Bibit Pohon Resapling"
       />
       <div className="w-full space-y-4">
-        {/* 🔍 Search + Sort + Filter */}
+        {/* Search + Sort + Filter */}
         <div className="search flex flex-col md:flex-row justify-between w-full items-center gap-3 px-6 sm:px-12 mx-auto py-3 bg-leaf-50 rounded-xl shadow-sm">
           {/* Search Input */}
           <div className="w-full md:w-[60%] border border-leaf-500 rounded-lg relative">
@@ -236,7 +245,7 @@ export default function Campaign() {
           </div>
         </div>
 
-        {/* 🧭 Dropdown Filter Section */}
+        {/* Dropdown Filter Section */}
         <div className="flex flex-row flex-wrap items-center gap-3 px-6 sm:px-12">
           {/* Medan */}
           <select
@@ -310,6 +319,8 @@ export default function Campaign() {
                   target={card.target}
                   progress={card.progress}
                   deadline={card.deadline}
+                  location={card.lokasi}
+                  medan={card.medan}
                 />
               </Link>
             ))}

@@ -2,7 +2,6 @@
 import Footer from "@/components/Footer";
 import Jumbotron from "@/components/Jumbotron";
 import Navbar from "@/components/Navbar";
-import TabSection from "@/app/campaign/charity/TabSection";
 import Modal from "@/components/Modal";
 import { useState } from "react";
 import Link from "next/link";
@@ -40,7 +39,7 @@ export default function Page({ params }: PageProps) {
     }
   };
 
-  const handleCopyLink = () => {};
+  const handleCopyLink = () => { };
 
   const handleSubmitDonasi = (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,11 +294,10 @@ export default function Page({ params }: PageProps) {
             <button
               type="submit"
               disabled={!selectedFile}
-              className={`w-full ${
-                !selectedFile
+              className={`w-full ${!selectedFile
                   ? "bg-gray-400 text-black"
                   : "bg-green-600! text-white"
-              } py-3 rounded-lg font-semibold hover:bg-green-700 disabled:cursor-not-allowed transition-colors`}
+                } py-3 rounded-lg font-semibold hover:bg-green-700 disabled:cursor-not-allowed transition-colors`}
             >
               Konfirmasi Donasi {jumlahPohon} Pohon
             </button>
@@ -349,11 +347,10 @@ export default function Page({ params }: PageProps) {
                 />
                 <button
                   onClick={handleCopyLink}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isLinkCopied
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${isLinkCopied
                       ? "bg-green-600 text-white"
                       : "bg-green-100 text-green-700 hover:bg-green-200"
-                  }`}
+                    }`}
                 >
                   {isLinkCopied ? "✓ Tersalin" : "Salin"}
                 </button>

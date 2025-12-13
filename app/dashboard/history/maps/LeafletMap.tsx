@@ -29,7 +29,7 @@ function LocationMarker({ setCoords }: any) {
 export default function LeafletMap({ coords, setCoords, points, onPointClick }: any) {
   return (
     <MapContainer
-      center={[-6.2088, 106.8456]}
+      center={coords == null ? [-6.2088, 106.8456] : [coords[0], coords[1]]}
       zoom={13}
       style={{ height: "100%", width: "100%" }}
     >

@@ -6,7 +6,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc } from "firebase/firestore";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { db } from "@/lib/firebase"; // Sesuaikan dengan path firebase config Anda
 
 // Tambahkan interface untuk Donation
@@ -128,19 +130,19 @@ function DonationTable({ donations, loadingDonations }: { donations: Donation[],
   }, [searchTerm, donations]);
 
   return (
-    <div className="w-full border-2 border-gray-200 rounded-xl flex text-black">
+    <div className="w-full border-2 border-gray-200 rounded-xl flex text-black mt-4">
       <div className="md:flex-10 w-full">
         <div className="bg-white rounded-xl shadow-md p-4 max-w-full overflow-x-auto relative">
           <div className="sticky top-0 z-10 bg-white pb-4">
             <div className="flex justify-between w-full items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                Tabel Histori Donasi
+                Tabel Histori
               </h2>
-              <div className="flex gap-4 md:w-full">
+              {/* <div className="flex gap-4 md:w-full">
                 <button className="btn btn-xs !bg-leaf-700 !text-white">
                   <p className="md:text-sm text-xs">Export ke CSV</p>
                 </button>
-              </div>
+              </div> */}
             </div>
             <div className="mb-4 flex w-full space-x-4">
               <input
@@ -229,7 +231,6 @@ function DataSection({ campaign, donations, loadingDonations }: {
 }
 
 // Component untuk informasi kampanye
-// Component untuk informasi kampanye
 function CampaignInfo({ campaign }: { campaign: any }) {
   const router = useRouter();
   const [descriptionHtml, setDescriptionHtml] = useState<string>("");
@@ -252,6 +253,34 @@ function CampaignInfo({ campaign }: { campaign: any }) {
 
     fetchDescription();
   }, [campaign.deskripsi_url]);
+
+  const handleDelete = async () => {
+    if (confirm("Apakah Anda yakin ingin menghapus kampanye ini?")) {
+      try {
+        const campaignsRef = collection(db, "campaignsv2");
+        const q = query(campaignsRef, where("id", "==", campaign.id));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+          });
+          toast.success("Kampanye berhasil dihapus", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+          setTimeout(() => {
+            router.push("/dashboard/admin");
+          }, 3000);
+        } else {
+          toast.error("Kampanye tidak ditemukan");
+        }
+      } catch (error) {
+        console.error("Error deleting campaign:", error);
+        toast.error("Gagal menghapus kampanye");
+      }
+    }
+  };
 
   return (
     <div className="flex-1">
@@ -382,83 +411,49 @@ function CampaignInfo({ campaign }: { campaign: any }) {
           <div className="pt-4 flex gap-4">
             <button
               type="button"
-              className="px-6 py-3 border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors w-2/5"
+              className="px-6 py-3 border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors w-2/5 flex justify-center items-center"
               onClick={() => window.history.back()}
             >
-              <i className="bx bxs-edit mr-2"></i> Edit
+              <i className="bx bxs-edit mr-2"></i> <p className="md:block hidden">Edit</p>
             </button>
 
             <button
               type="button"
-              className="px-6 py-3 border border-leaf-600 bg-leaf-600 text-white font-bold rounded-lg hover:bg-leaf-700 transition-colors w-2/5"
+              className="px-6 py-3 border border-red-600 !bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors w-2/5 flex justify-center items-center"
+              onClick={handleDelete}
+            >
+              <i className="bx bxs-trash mr-2"></i> <p className="md:block hidden">Delete</p>
+            </button>
+
+            <button
+              type="button"
+              className="px-6 py-3 border border-leaf-600 bg-leaf-600 text-white font-bold rounded-lg hover:bg-leaf-700 transition-colors w-full md:w-2/5"
               onClick={() => {
                 // TODO: Implement update logic
                 router.push(`/dashboard/admin/${campaign.id}/update`);
-                console.log("Update campaign:", campaign.id);
               }}
             >
               <i className="bx bxs-save mr-2"></i> Update
             </button>
 
-            <button
-              type="button"
-              className="px-6 py-3 border border-red-600 !bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors w-1/5"
-              onClick={() => {
-                // TODO: Implement delete logic
-                if (
-                  confirm("Apakah Anda yakin ingin menghapus kampanye ini?")
-                ) {
-                  console.log("Delete campaign:", campaign.id);
-                }
-              }}
-            >
-              <i className="bx bxs-trash mr-2"></i> Delete
-            </button>
           </div>
+          <ToastContainer 
+            position="bottom-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"/>
         </div>
       </div>
     </div>
   );
 }
 
-// Component untuk sidebar deskripsi
-function DescriptionSidebar({ campaign }: { campaign: any }) {
-  return (
-    <div className="flex md:hidden! flex-col w-full items-center bg-white rounded-2xl border-2 border-gray-100 p-4 h-max">
-      <Image
-        src={campaign.poster_url || "/assets/img/item/sinarmas.jpeg"}
-        alt={campaign.judul}
-        width={350}
-        height={200}
-        className="object-cover rounded-xl mt-4 w-full h-48"
-      />
-
-      <h3 className="text-lg font-bold mt-4 text-center">{campaign.judul}</h3>
-
-      <div className="mt-4 inline-flex justify-between w-full">
-        <p> Target Terkumpul </p>
-        <p className="font-bold">
-          {" "}
-          Rp {campaign.target_donasi?.toLocaleString() || 0}
-        </p>
-      </div>
-
-      <div className="w-full bg-gray-100 rounded-full h-2 mt-4">
-        <div
-          className="bg-leaf-500 h-2 rounded-full"
-          style={{ width: `${campaign.progress_percentage || 0}%` }}
-        ></div>
-      </div>
-
-      <a
-        href="/campaign/charity"
-        className="btn !bg-leaf-700 text-white mt-4 w-full"
-      >
-        Check
-      </a>
-    </div>
-  );
-}
 
 // Component utama untuk halaman detail kampanye
 export default function CampaignDetailPage() {
@@ -483,7 +478,6 @@ export default function CampaignDetailPage() {
         }
 
         const campaignId = params.id as string;
-        console.log("Fetching campaign with ID:", campaignId);
 
         // Cara 1: Query dengan where clause
         const campaignsRef = collection(db, "campaignsv2");
@@ -494,7 +488,6 @@ export default function CampaignDetailPage() {
           // Ambil dokumen pertama yang cocok
           const campaignDoc = querySnapshot.docs[0];
           const campaignData = campaignDoc.data();
-          console.log("Campaign data:", campaignData);
 
           setCampaign({
             id: campaignDoc.id, // ID dokumen Firebase
@@ -513,6 +506,7 @@ export default function CampaignDetailPage() {
 
     fetchCampaign();
   }, [params?.id]);
+
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
@@ -594,7 +588,6 @@ export default function CampaignDetailPage() {
 
           // Format status teks
           const statusText = "sukses"
-          // console.log(data)
           donationsData.push({
             id: doc.id,
             date: formattedDate,
@@ -714,9 +707,6 @@ export default function CampaignDetailPage() {
 
       {/* Main Content */}
       <div className="p-4 text-black flex md:flex-row flex-col gap-4">
-        {/* Sidebar */}
-        <DescriptionSidebar campaign={campaign} />
-
         {/* Content Area */}
         <div className="flex-1">
           {activeTab === "Deskripsi" && <CampaignInfo campaign={campaign} />}

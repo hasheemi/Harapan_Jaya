@@ -119,10 +119,11 @@ export default function HistoryPage() {
           <button className="px-2 hover:bg-green-400 border-2 border-gray-300 py-2"><i className="bx bx-arrow-back"></i></button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Peta</h1>
+          <h1 className="text-3xl font-bold text-gray-800">My Bibit</h1>
+          <p> Lihat Donasi yang telah kamu berikan sebelumnya </p>
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white my-4 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
               <h3 className="font-bold text-gray-800">Riwayat Donasi</h3>
               {userDonations.length >= 0 && (
