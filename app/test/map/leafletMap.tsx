@@ -26,7 +26,7 @@ function LocationMarker({ setCoords }: any) {
   return null;
 }
 
-export default function LeafletMap({ coords, setCoords }: any) {
+export default function LeafletMap({ coords, setCoords, points, onPointClick }: any) {
   return (
     <MapContainer
       center={[-6.2088, 106.8456]}
@@ -36,6 +36,19 @@ export default function LeafletMap({ coords, setCoords }: any) {
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <LocationMarker setCoords={setCoords} />
       {coords && <Marker position={coords} icon={customMarker} />}
+      {points &&
+        points.map((point: any, index: number) => (
+          <Marker
+            key={index}
+            position={[point.lat, point.lng]}
+            icon={customMarker}
+            eventHandlers={{
+              click: () => {
+                if (onPointClick) onPointClick(index);
+              },
+            }}
+          />
+        ))}
     </MapContainer>
   );
 }

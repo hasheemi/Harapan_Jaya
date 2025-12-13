@@ -135,7 +135,7 @@ export default function DashboardPage() {
     return sum + (donation.jumlah_pohon || 0);
   }, 0);
 
-  // Hitung CO2 yang direduksi (asumsi: 1 pohon = 25 kg CO2/tahun)
+  // Hitung CO2 yang direduksi 
   const calculatedCO2 = (totalTreesFromDonations * 25).toLocaleString("id-ID");
 
   return (
@@ -277,9 +277,9 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
               <h3 className="font-bold text-gray-800">Riwayat Donasi</h3>
-              {userDonations.length > 0 && (
+              {userDonations.length >= 0 && (
                 <Link
-                  href="#"
+                  href="/dashboard/history"
                   className="text-sm text-leaf-600 hover:text-leaf-700 font-medium"
                 >
                   Lihat Semua

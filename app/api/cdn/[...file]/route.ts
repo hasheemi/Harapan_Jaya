@@ -45,7 +45,7 @@ export async function GET(
       const contentType =
         contentTypes[extension ?? ""] ?? "application/octet-stream";
 
-      return new NextResponse(cachedFile, {
+      return new NextResponse(cachedFile as any, {
         status: 200,
         headers: {
           "Content-Type": contentType,
@@ -82,7 +82,7 @@ export async function GET(
     const contentType =
       contentTypes[extension ?? ""] ?? "application/octet-stream";
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(fileBuffer as any, {
       status: 200,
       headers: {
         "Content-Type": contentType,
