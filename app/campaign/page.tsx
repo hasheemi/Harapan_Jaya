@@ -69,46 +69,54 @@ export default function Campaign() {
         const campaignsRef = collection(db, "campaignsv2");
         const querySnapshot = await getDocs(campaignsRef);
 
-        const campaignsData = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
+     const campaignsData: Campaign[] = querySnapshot.docs.map((doc) => {
+  const data = doc.data();
 
-          // Calculate financial values
-          const targetDonasi = data.target_donasi || 0;
-          const totalPohon = data.total_pohon || 0;
-          const totalDonasi = data.total_donasi || 0;
+  const target = data.target_donasi || 0;
+  const trees = data.total_pohon || 0;
+  const raised = trees;
 
-          return {
-            // Document ID untuk linking
-            id: doc.id,
+  const progress =
+    target > 0 ? Math.min(Math.round((raised / target) * 100), 100) : 0;
 
-            // Campaign data dari schema
-            campaignId: data.id,
-            judul: data.judul || "Untitled Campaign",
-            status: data.status || "draft",
-            target_donasi: targetDonasi,
-            total_donasi: totalDonasi,
-            total_pohon: totalPohon,
-            total_donatur: data.total_donatur || 0,
-            progress_percentage: data.progress_percentage || 0,
-            tanggal_mulai: data.tanggal_mulai?.toDate?.() || null,
-            tanggal_selesai: data.tanggal_berakhir?.toDate?.() || null,
+  // Deadline
+  let deadline = "Telah Berakhir";
+  const endDate = data.tanggal_berakhir?.toDate?.();
+  if (endDate) {
+    const diffDays = Math.ceil(
+      (endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+    if (diffDays > 0) deadline = `${diffDays} hari lagi`;
+  }
 
-            // Calculated values untuk display
-            raised:  totalPohon ,
-            target: targetDonasi ,
-            trees: totalPohon,
+  return {
+    id: doc.id,
+    campaignId: data.id,
 
-            // Field lainnya
-            poster_url: data.poster_url || "",
-            lokasi: data.lokasi || "",
-            jenis_pohon: data.jenis_pohon || "",
-            nama_yayasan: data.created_by_yayasan || data.created_by_name || "", // Ambil nama yayasan jika ada
-            created_at: data.created_at?.toDate?.() || null,
-            updated_at: data.updated_at?.toDate?.() || null,
-            medan: data.medan || "",
+    title: data.judul || "Untitled Campaign",
+    description: data.judul || "",
+    image: data.poster_url || "/assets/img/item/gemarsorong.jpg",
 
-          };
-        });
+    target,
+    raised,
+    trees,
+    progress,
+
+    lokasi: data.lokasi || "",
+    jenis_pohon: data.jenis_pohon || "",
+    medan: data.medan || "",
+    nama_yayasan:
+      data.created_by_yayasan || data.created_by_name || "",
+
+    status: data.status || "draft",
+    deadline,
+
+    tanggal_mulai: data.tanggal_mulai?.toDate?.() || null,
+    tanggal_selesai: endDate || null,
+    created_at: data.created_at?.toDate?.() || null,
+    updated_at: data.updated_at?.toDate?.() || null,
+  };
+});
 
         setCampaigns(campaignsData);
       } catch (error) {
@@ -339,6 +347,7 @@ export default function Campaign() {
     </div>
   );
 }
+
 
 
 
