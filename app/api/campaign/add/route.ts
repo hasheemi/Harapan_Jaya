@@ -99,8 +99,8 @@ export async function POST(request: NextRequest) {
       tanggal_mulai: new Date(tanggalMulai).toISOString(),
       tanggal_berakhir: new Date(tanggalBerakhir).toISOString(),
       tanggal_planning: new Date(tanggalPlanning).toISOString(),
-      poster_url: uploadResult.result?.poster || "",
-      deskripsi_url: uploadResult.result?.description || "",
+      poster_url: uploadResult.result?.cdnUrl || "",
+      deskripsi_url: uploadResult.result?.descriptionHtml || "",
 
       // Data tanaman
       medan: medan,
