@@ -133,14 +133,14 @@ export default function Campaign() {
   // Konversi data campaign ke format DonationCard
   const donationCards: DonationCardData[] = campaigns.map((campaign) => {
     // Format judul untuk title (ambil 2-3 kata pertama jika terlalu panjang)
-    const titleWords = campaign.judul.split(" ");
+    const titleWords = campaign.title.split(" ");
     const shortTitle =
       titleWords.length > 3
         ? `${titleWords.slice(0, 3).join(" ")}...`
         : campaign.judul;
 
     // Buat deskripsi dari kombinasi judul dan lokasi
-    const description = `${campaign.judul}`;
+    const description = `${campaign.title}`;
 
     // Hitung progress percentage
     const progress =
@@ -347,6 +347,7 @@ export default function Campaign() {
     </div>
   );
 }
+
 
 
 
