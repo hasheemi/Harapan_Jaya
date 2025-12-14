@@ -12,28 +12,30 @@ import Footer from "@/components/Footer";
 import DonationCard from "@/components/DonationCard";
 
 interface Campaign {
-  id: string; // Firestore document ID
-  campaignId: string; // Your custom campaign ID field
-  judul: string;
-  status: "draft" | "active" | "completed" | "archived" | string;
-  target_donasi: number;
-  total_donasi: number;
-  total_pohon: number;
-  total_donatur: number;
-  progress_percentage: number;
-  poster_url: string;
+  // ID
+  id: string;           // Firestore document ID
+  campaignId: string;   // custom campaign id (untuk routing)
+
+  // Display
+  title: string;
+  description: string;
+  image: string;
+  target: number;       // target donasi
+  raised: number;       // total terkumpul / pohon terkumpul
+  trees: number;        // total pohon
+  progress: number;     // 0 - 100
   lokasi: string;
   jenis_pohon: string;
-  medan?: string; // Added missing field
+  medan?: string;
   nama_yayasan?: string;
-  created_by_yayasan?: string;
-  created_by_name?: string;
+  status: "draft" | "active" | "completed" | "archived" | string;
+  deadline: string;
   tanggal_mulai?: Date | null;
   tanggal_selesai?: Date | null;
-  tanggal_berakhir?: Date | null; // Added for consistency
   created_at?: Date | null;
   updated_at?: Date | null;
 }
+
 
 interface DonationCardData {
   image: string;
@@ -337,6 +339,7 @@ export default function Campaign() {
     </div>
   );
 }
+
 
 
 
