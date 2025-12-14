@@ -11,9 +11,6 @@ import Jumbotron from "@/components/Jumbotron";
 import Footer from "@/components/Footer";
 import DonationCard from "@/components/DonationCard";
 
-
-mport DonationCard from "@/components/DonationCard";
-
 interface Campaign {
   id: string; // Firestore document ID
   campaignId: string; // Your custom campaign ID field
@@ -340,6 +337,7 @@ export default function Campaign() {
     </div>
   );
 }
+
 
 
 
