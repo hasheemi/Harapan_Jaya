@@ -29,10 +29,12 @@ export async function POST(request: NextRequest) {
       console.log("Uploading update image...");
       const uploadFormData = new FormData();
       uploadFormData.append("file", imageFile);
-      uploadFormData.append("campaignId", campaignId); 
+      uploadFormData.append("campaignId", campaignId);
 
       const uploadResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || request.nextUrl.origin}/api/upload`,
+        `${
+          process.env.NEXT_PUBLIC_API_URL || request.nextUrl.origin
+        }/api/upload`,
         {
           method: "POST",
           body: uploadFormData,
@@ -47,7 +49,7 @@ export async function POST(request: NextRequest) {
 
       const uploadResult = await uploadResponse.json();
       console.log("Upload result:", uploadResult);
-      imageUrl = uploadResult.result?.poster || uploadResult.url || "";
+      imageUrl = uploadResult.result?.cdnUrl || uploadResult.url || "";
     }
 
     // Create update document
@@ -69,10 +71,9 @@ export async function POST(request: NextRequest) {
       data: {
         id: docRef.id,
         ...updateData,
-        created_at: new Date().toISOString(), 
+        created_at: new Date().toISOString(),
       },
     });
-
   } catch (error: any) {
     console.error("Error creating update:", error);
     return NextResponse.json(
