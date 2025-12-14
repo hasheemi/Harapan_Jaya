@@ -28,6 +28,8 @@ interface Campaign {
   poster_url: string;
   lokasi: string;
   jenis_pohon: string;
+  tanggal_selesai: any;
+  tanggal_berakhir: any;
   nama_yayasan?: string; // Tambahkan field ini jika ada di data
   created_at: Date | null;
   updated_at: Date | null;
@@ -84,7 +86,7 @@ export default function Campaign() {
             total_donatur: data.total_donatur || 0,
             progress_percentage: data.progress_percentage || 0,
             tanggal_mulai: data.tanggal_mulai?.toDate?.() || null,
-            tanggal_selesai: data.tanggal_selesai?.toDate?.() || null,
+            tanggal_selesai: data.tanggal_berakhir?.toDate?.() || null,
 
             // Calculated values untuk display
             raised:  totalPohon ,
@@ -332,4 +334,5 @@ export default function Campaign() {
     </div>
   );
 }
+
 
