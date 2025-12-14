@@ -29,7 +29,6 @@ interface Campaign {
   lokasi: string;
   jenis_pohon: string;
   tanggal_selesai: any;
-  tanggal_berakhir: any;
   nama_yayasan?: string; // Tambahkan field ini jika ada di data
   created_at: Date | null;
   updated_at: Date | null;
@@ -334,5 +333,6 @@ export default function Campaign() {
     </div>
   );
 }
+
 
 
