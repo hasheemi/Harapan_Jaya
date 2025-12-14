@@ -88,7 +88,7 @@ export default function AddCampaignPage() {
   // Check authentication
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/signin");
+      router.push("/login");
     }
   }, [status, router]);
 

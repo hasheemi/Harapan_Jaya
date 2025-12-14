@@ -85,7 +85,6 @@ export default function UpgradePage() {
     setIsLoading(true);
 
     try {
-
       const submitFormData = new FormData();
       submitFormData.append("myemail", localData.email);
       let fileCount = 0;
@@ -119,7 +118,7 @@ export default function UpgradePage() {
         );
       }
 
-      const response = await fetch("http://localhost:4000/api/upgrade", {
+      const response = await fetch("/api/upgrade", {
         method: "POST",
         body: submitFormData,
       });
