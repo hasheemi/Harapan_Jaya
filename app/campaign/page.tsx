@@ -137,7 +137,7 @@ export default function Campaign() {
     const shortTitle =
       titleWords.length > 3
         ? `${titleWords.slice(0, 3).join(" ")}...`
-        : campaign.judul;
+        : campaign.title;
 
     // Buat deskripsi dari kombinasi judul dan lokasi
     const description = `${campaign.title}`;
@@ -347,6 +347,7 @@ export default function Campaign() {
     </div>
   );
 }
+
 
 
 
