@@ -1,30 +1,46 @@
+// app/about/page.tsx
 "use client";
 
-import DonationCard from "@/components/DonationCard";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import Image from "next/image";
+import Link from "next/link";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import Navbar from "@/components/Navbar";
+import Jumbotron from "@/components/Jumbotron";
+import Footer from "@/components/Footer";
+import DonationCard from "@/components/DonationCard";
 
 interface Campaign {
-  id: string;
-  campaignId: string;
-  judul: string;
-  status: string;
-  target_donasi: number;
-  total_donasi: number;
-  total_pohon: number;
-  total_donatur: number;
-  progress_percentage: number;
-  raised: number;
-  target: number;
-  trees: number;
-  poster_url: string;
+  // ID
+  id: string;           // Firestore document ID
+  campaignId: string;   // custom campaign id (untuk routing)
+
+  // Display
+  title: string;
+  description: string;
+  image: string;
+  poster_url?: string;  // Tambahkan ini karena digunakan di mapping
+  target: number;       // target donasi
+  raised: number;       // total terkumpul / pohon terkumpul
+  trees: number;        // total pohon
+  progress: number;     // 0 - 100
   lokasi: string;
   jenis_pohon: string;
-  nama_yayasan?: string; // Tambahkan field ini jika ada di data
-  created_at: Date | null;
-  updated_at: Date | null;
+  medan?: string;
+  nama_yayasan?: string;
+  status: "draft" | "active" | "completed" | "archived" | string;
+  deadline: string;
+  tanggal_mulai?: Date | null;
+  tanggal_selesai?: Date | null;
+  created_at?: Date | null;
+  updated_at?: Date | null;
+  tanggal_berakhir?: Date | null;  // Tambahkan ini untuk deadline
+  target_donasi?: number;          // Tambahkan ini
+  total_pohon?: number;            // Tambahkan ini
+  created_by_yayasan?: string;     // Tambahkan ini
+  created_by_name?: string;        // Tambahkan ini
+  judul?: string;                  // Tambahkan ini karena digunakan
 }
 
 interface DonationCardData {
@@ -37,10 +53,12 @@ interface DonationCardData {
   deadline: string;
   nama_yayasan?: string;
   lokasi?: string;
+  jenis_pohon?: string;
+  medan?: string;
+  campaignId?: string; // Added for linking
 }
 
-export default function CampaignUpdatesPage() {
-  // State
+export default function Campaign() {
   const [sort, setSort] = useState<"terdekat" | "terbaru">("terdekat");
   const [medan, setMedan] = useState("");
   const [lokasi, setLokasi] = useState("");
@@ -48,8 +66,8 @@ export default function CampaignUpdatesPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  
-    // Fetch campaigns dari Firebase tanpa filter email
+
+  // Fetch campaigns dari Firebase tanpa filter email
   useEffect(() => {
     const fetchCampaigns = async () => {
       setIsLoading(true);
@@ -57,44 +75,81 @@ export default function CampaignUpdatesPage() {
         const campaignsRef = collection(db, "campaignsv2");
         const querySnapshot = await getDocs(campaignsRef);
 
-        const campaignsData = querySnapshot.docs.map((doc) => {
+        const campaignsData: Campaign[] = querySnapshot.docs.map((doc) => {
           const data = doc.data();
 
-          // Calculate financial values
-          const targetDonasi = data.target_donasi || 0;
-          const totalPohon = data.total_pohon || 0;
-          const totalDonasi = data.total_donasi || 0;
+          // Pastikan semua properti ada dengan default value
+          const target = data.target_donasi || data.target || 0;
+          const trees = data.total_pohon || data.trees || data.raised || 0;
+          const raised = trees;
+
+          const progress =
+            target > 0 ? Math.min(Math.round((raised / target) * 100), 100) : 0;
+
+          // Handle tanggal_berakhir yang bisa berupa Timestamp, Date, atau string
+          let deadline = "Telah Berakhir";
+          let tanggal_berakhir: Date | null = null;
+          
+          if (data.tanggal_berakhir) {
+            // Cek jika ini adalah Timestamp Firebase
+            if (data.tanggal_berakhir.toDate && typeof data.tanggal_berakhir.toDate === 'function') {
+              tanggal_berakhir = data.tanggal_berakhir.toDate();
+            } else if (data.tanggal_berakhir instanceof Date) {
+              tanggal_berakhir = data.tanggal_berakhir;
+            } else if (typeof data.tanggal_berakhir === 'string') {
+              tanggal_berakhir = new Date(data.tanggal_berakhir);
+            }
+            
+            if (tanggal_berakhir && !isNaN(tanggal_berakhir.getTime())) {
+              const diffDays = Math.ceil(
+                (tanggal_berakhir.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+              );
+              if (diffDays > 0) deadline = `${diffDays} hari lagi`;
+            }
+          }
+
+          // Convert other timestamps jika ada
+          const convertFirebaseTimestamp = (timestamp: any): Date | null => {
+            if (!timestamp) return null;
+            if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+              return timestamp.toDate();
+            }
+            if (timestamp instanceof Date) {
+              return timestamp;
+            }
+            if (typeof timestamp === 'string') {
+              return new Date(timestamp);
+            }
+            return null;
+          };
 
           return {
-            // Document ID untuk linking
             id: doc.id,
-
-            // Campaign data dari schema
-            campaignId: data.id,
-            judul: data.judul || "Untitled Campaign",
-            status: data.status || "draft",
-            target_donasi: targetDonasi,
-            total_donasi: totalDonasi,
-            total_pohon: totalPohon,
-            total_donatur: data.total_donatur || 0,
-            progress_percentage: data.progress_percentage || 0,
-            tanggal_mulai: data.tanggal_mulai?.toDate?.() || null,
-            tanggal_berakhir: data.tanggal_berakhir?.toDate?.() || null,
-
-            // Calculated values untuk display
-            raised:  totalPohon ,
-            target: targetDonasi ,
-            trees: totalPohon,
-
-            // Field lainnya
-            poster_url: data.poster_url || "",
-            lokasi: data.lokasi || "",
+            campaignId: data.id || doc.id, // Fallback ke doc.id jika data.id tidak ada
+            title: data.judul || data.title || "Untitled Campaign",
+            description: data.judul || data.description || "",
+            image: data.poster_url || data.image || "/assets/img/item/gemarsorong.jpg",
+            poster_url: data.poster_url || data.image || "/assets/img/item/gemarsorong.jpg",
+            target,
+            raised,
+            trees,
+            progress,
+            lokasi: data.lokasi || data.location || "",
             jenis_pohon: data.jenis_pohon || "",
-            nama_yayasan: data.created_by_yayasan || data.created_by_name || "", // Ambil nama yayasan jika ada
-            created_at: data.created_at?.toDate?.() || null,
-            updated_at: data.updated_at?.toDate?.() || null,
             medan: data.medan || "",
-
+            nama_yayasan: data.created_by_yayasan || data.created_by_name || data.nama_yayasan || "",
+            status: data.status || "draft",
+            deadline,
+            tanggal_mulai: convertFirebaseTimestamp(data.tanggal_mulai),
+            tanggal_selesai: convertFirebaseTimestamp(data.tanggal_selesai) || tanggal_berakhir,
+            tanggal_berakhir: tanggal_berakhir,
+            created_at: convertFirebaseTimestamp(data.created_at),
+            updated_at: convertFirebaseTimestamp(data.updated_at),
+            target_donasi: target,
+            total_pohon: trees,
+            created_by_yayasan: data.created_by_yayasan,
+            created_by_name: data.created_by_name,
+            judul: data.judul || data.title,
           };
         });
 
@@ -109,16 +164,18 @@ export default function CampaignUpdatesPage() {
 
     fetchCampaigns();
   }, []);
+
+  // Konversi data campaign ke format DonationCard
   const donationCards: DonationCardData[] = campaigns.map((campaign) => {
     // Format judul untuk title (ambil 2-3 kata pertama jika terlalu panjang)
-    const titleWords = campaign.judul.split(" ");
+    const titleWords = campaign.title.split(" ");
     const shortTitle =
       titleWords.length > 3
         ? `${titleWords.slice(0, 3).join(" ")}...`
-        : campaign.judul;
+        : campaign.title;
 
     // Buat deskripsi dari kombinasi judul dan lokasi
-    const description = `${campaign.judul}`;
+    const description = `${campaign.title}`;
 
     // Hitung progress percentage
     const progress =
@@ -126,23 +183,25 @@ export default function CampaignUpdatesPage() {
         ? Math.round((campaign.raised / campaign.target) * 100)
         : 0;
 
-    // Generate deadline dummy (atau gunakan data dari firebase jika ada)
-    let deadline= "Telah Berakhir";
-    if (campaign.tanggal_berakhir) {
-      const endDate = campaign.tanggal_berakhir.toDate();
-      const today = new Date();
-      const diffTime = endDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Generate deadline dari campaign.deadline yang sudah dihitung
+    let deadline = campaign.deadline || "Telah Berakhir";
+    
+    // Fallback: hitung ulang jika belum ada
+    if (!campaign.deadline || campaign.deadline === "Telah Berakhir") {
+      if (campaign.tanggal_selesai) {
+        const endDate = campaign.tanggal_selesai;
+        const today = new Date();
+        const diffTime = endDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays > 0) {
-        deadline = `${diffDays} hari lagi`;
+        if (diffDays > 0) {
+          deadline = `${diffDays} hari lagi`;
+        }
       }
     }
 
-    console.log(campaign)
-
     return {
-      image: campaign.poster_url || "/assets/img/item/gemarsorong.jpg",
+      image: campaign.poster_url || campaign.image || "/assets/img/item/gemarsorong.jpg",
       title: campaign.nama_yayasan || shortTitle,
       description: description,
       current: campaign.raised,
@@ -153,10 +212,11 @@ export default function CampaignUpdatesPage() {
       lokasi: campaign.lokasi,
       jenis_pohon: campaign.jenis_pohon,
       medan: campaign.medan,
+      campaignId: campaign.campaignId,
     };
   });
 
-    const handleApply = () => {
+  const handleApply = () => {
     console.log({
       sort,
       medan,
@@ -164,7 +224,6 @@ export default function CampaignUpdatesPage() {
       mitra,
     });
   };
-
 
   useEffect(() => {
     // Initialize AOS
@@ -177,42 +236,83 @@ export default function CampaignUpdatesPage() {
     }
   }, []);
 
-  return (
-    <div className="space-y-6 w-full">
-      {/* FIlter */}
-      <div className=" w-full text-black">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Kampanye </h1>
-          <p className="text-gray-500">Jadilah Pahlawan Hijau hari ini</p>
+  // Filter berdasarkan search term
+  const filteredCards = donationCards.filter(card => 
+    searchTerm === "" || 
+    card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.lokasi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.medan?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.nama_yayasan?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="!overflow-x-hidden bg-leaf-50 min-h-screen">
+        <Navbar />
+        <Jumbotron
+          imageUrl="/assets/img/background/campaign_background.jpeg"
+          title="Donasi Bibit Pohon Resapling"
+        />
+        <div className="flex justify-center items-center h-64">
+          <div className="text-leaf-700">Memuat kampanye...</div>
         </div>
-        <div className="flex items-center gap-4 w-full my-4">
-          <label className="input w-full bg-white border-2 border-leaf-500 rounded-2xl">
-            <svg
-              className="h-[1em] opacity-50"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="!overflow-x-hidden bg-leaf-50">
+      <Navbar />
+      <Jumbotron
+        imageUrl="/assets/img/background/campaign_background.jpeg"
+        title="Donasi Bibit Pohon Resapling"
+      />
+      <div className="w-full space-y-4">
+        {/* Search + Sort + Filter */}
+        <div className="search flex flex-col md:flex-row justify-between w-full items-center gap-3 px-6 sm:px-12 mx-auto py-3 bg-leaf-50 rounded-xl shadow-sm">
+          {/* Search Input */}
+          <div className="w-full md:w-[60%] border border-leaf-500 rounded-lg relative">
+            <input
+              type="text"
+              placeholder="Cari program donasi terbaru..."
+              className="bg-white border-none rounded-lg px-4 py-3 text-sm w-full focus:ring-2 focus:ring-leaf-400"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <i className="bx bx-search absolute right-3 top-2.5 text-leaf-900 text-xl"></i>
+          </div>
+
+          {/* Sort & Filter Buttons */}
+          <div className="flex flex-row gap-4 w-full md:w-2/5 justify-end">
+            {/* Urutkan */}
+            <div
+              onClick={() =>
+                setSort((prev) =>
+                  prev === "terdekat" ? "terbaru" : "terdekat"
+                )
+              }
+              className="chips flex items-center gap-2 bg-leaf-500 hover:bg-leaf-600 text-white px-5 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-sm"
             >
-              <g
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                strokeWidth="2.5"
-                fill="none"
-                stroke="black"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.3-4.3"></path>
-              </g>
-            </svg>
-            <input type="search" required placeholder="Search" />
-          </label>
-          <div className="flex gap-4">
-            <button className="md:w-full w-[15px] bg-leaf-600 hover:bg-leaf-700 text-white py-3 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0">
-              <p className="md:inline! hidden">Terapkan</p>{" "}
-              <i className="bx bx-search flex md:hidden!"></i>
-            </button>
+              <i className="bx bx-sort text-base"></i>
+              <span>
+                Urutkan: {sort === "terdekat" ? "Terdekat" : "Terbaru"}
+              </span>
+            </div>
+
+            {/* Filter */}
+            <div className="chips flex items-center gap-2 bg-leaf-500 hover:bg-leaf-600 text-white px-5 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-sm">
+              <i className="bx bx-filter-alt text-base"></i>
+              <span>Filter</span>
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center ">
+
+        {/* Dropdown Filter Section */}
+        <div className="flex flex-row flex-wrap items-center gap-3 px-6 sm:px-12">
+          {/* Medan */}
           <select
             value={medan}
             onChange={(e) => setMedan(e.target.value)}
@@ -224,6 +324,8 @@ export default function CampaignUpdatesPage() {
             <option value="perkotaan">Perkotaan</option>
             <option value="lahan_kritis">Lahan Kritis</option>
           </select>
+
+          {/* Lokasi */}
           <select
             value={lokasi}
             onChange={(e) => setLokasi(e.target.value)}
@@ -237,6 +339,8 @@ export default function CampaignUpdatesPage() {
             <option value="papua">Papua</option>
             <option value="bali">Bali & Nusa Tenggara</option>
           </select>
+
+          {/* Mitra */}
           <select
             value={mitra}
             onChange={(e) => setMitra(e.target.value)}
@@ -248,21 +352,18 @@ export default function CampaignUpdatesPage() {
             <option value="internasional">Internasional</option>
             <option value="komunitas">Komunitas Lokal</option>
           </select>
-          <div
-            onClick={() =>
-              setSort((prev) => (prev === "terdekat" ? "terbaru" : "terdekat"))
-            }
-            className="chips flex items-center gap-2 bg-leaf-500 hover:bg-leaf-600 text-white px-5 py-3 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 shadow-sm whitespace-nowrap"
+
+          {/* Terapkan Button */}
+          <button
+            onClick={handleApply}
+            className="bg-leaf-600 hover:bg-leaf-700 text-white px-8 py-3 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 !m-0"
           >
-            <i className="bx bx-sort text-base"></i>
-            <span>Urutkan: {sort === "terdekat" ? "Terdekat" : "Terbaru"}</span>
-          </div>
+            Terapkan
+          </button>
         </div>
       </div>
-
-      {/* Filter End */}
       <section className="donation px-6 sm:px-12 mt-4 pb-20">
-        {donationCards.length === 0 ? (
+        {filteredCards.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-leaf-700">
               Tidak ada kampanye donasi yang tersedia.
@@ -270,27 +371,35 @@ export default function CampaignUpdatesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-12 mt-10 mx-auto justify-between">
-            {donationCards.map((card, index) => (
-              <Link
-                href={`/campaign/${campaigns[index]?.campaignId || "detail"}`}
-                key={campaigns[index]?.campaignId || index}
-              >
-                <DonationCard
-                  image={card.image}
-                  title={card.title}
-                  description={card.description}
-                  current={card.current}
-                  target={card.target}
-                  progress={card.progress}
-                  deadline={card.deadline}
-                  location={card.lokasi}
-                  medan={card.medan}
-                />
-              </Link>
-            ))}
+            {filteredCards.map((card, index) => {
+              // Cari campaign yang sesuai berdasarkan campaignId
+              const campaign = campaigns.find(c => c.campaignId === card.campaignId) || campaigns[index];
+              
+              return (
+                <Link
+                  href={`/campaign/${campaign?.campaignId || "detail"}`}
+                  key={campaign?.campaignId || index}
+                  className="block hover:scale-[1.02] transition-transform duration-200"
+                >
+                  <DonationCard
+                    image={card.image}
+                    title={card.title}
+                    description={card.description}
+                    current={card.current}
+                    target={card.target}
+                    progress={card.progress}
+                    deadline={card.deadline}
+                    location={card.lokasi!}
+                    medan={card.medan!}
+                  />
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
+
+      <Footer />
     </div>
   );
 }
