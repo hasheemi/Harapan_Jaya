@@ -135,8 +135,8 @@ export default function Campaign() {
 
     // Generate deadline dummy (atau gunakan data dari firebase jika ada)
     let deadline= "Telah Berakhir";
-    if (campaign.selesai) {
-      const endDate = campaign.selesai.toDate();
+    if (campaign.tanggal_selesai) {
+      const endDate = campaign.tanggal_selesai.toDate();
       const today = new Date();
       const diffTime = endDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -332,3 +332,4 @@ export default function Campaign() {
     </div>
   );
 }
+
