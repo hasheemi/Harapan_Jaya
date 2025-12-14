@@ -389,8 +389,8 @@ export default function Campaign() {
                     target={card.target}
                     progress={card.progress}
                     deadline={card.deadline}
-                    location={card.lokasi}
-                    medan={card.medan}
+                    location={card.lokasi!}
+                    medan={card.medan!}
                   />
                 </Link>
               );
@@ -403,3 +403,4 @@ export default function Campaign() {
     </div>
   );
 }
+
