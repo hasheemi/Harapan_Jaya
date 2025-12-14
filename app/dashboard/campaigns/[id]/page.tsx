@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Modal from "@/components/Modal";
 import { useState } from "react";
 import Link from "next/link";
+import TabSection from "./TabSection.tsx"
 
 interface PageProps {
   params: { name: string };
